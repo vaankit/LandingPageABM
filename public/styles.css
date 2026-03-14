@@ -186,8 +186,7 @@ input {
 .section-heading h2,
 .status-card h2,
 .research-card h2,
-.preview-header h2,
-.metric-card strong {
+.preview-header h2 {
   margin: 0;
   font-family: "Sora", sans-serif;
   letter-spacing: -0.06em;
@@ -210,55 +209,8 @@ input {
   margin-inline: auto;
 }
 
-.hero-metrics {
-  display: grid;
-  grid-template-columns: 1.1fr 0.9fr;
-  gap: 16px;
-  margin-top: 14px;
-  width: min(100%, 920px);
-  margin-inline: auto;
-}
-
-.metric-card {
-  padding: 18px 20px;
-  border-radius: 28px;
-  border: 1px solid var(--line);
-  background:
-    linear-gradient(180deg, rgba(16, 25, 33, 0.96), rgba(14, 21, 28, 0.98));
-  box-shadow: var(--shadow-md);
-  text-align: center;
-}
-
-.metric-label {
-  margin: 0 0 12px;
-  color: var(--text-faint);
-  font-size: 12px;
-  font-weight: 800;
-  letter-spacing: 0.16em;
-  text-transform: uppercase;
-}
-
-.metric-card strong {
-  display: block;
-  max-width: 20ch;
-  font-size: clamp(1rem, 1.25vw, 1.35rem);
-  line-height: 1.18;
-  margin-inline: auto;
-}
-
-.metric-list {
-  margin: 0;
-  padding-left: 0;
-  display: grid;
-  gap: 8px;
-  color: var(--text-soft);
-  line-height: 1.48;
-  list-style-position: inside;
-  justify-items: center;
-}
-
 .builder-card {
-  margin-top: 22px;
+  margin-top: 18px;
   padding: 22px 24px 24px;
 }
 
@@ -556,7 +508,6 @@ input {
   }
 
   .hero-top,
-  .hero-metrics,
   .section-heading,
   .field-row,
   .service-options,
@@ -580,8 +531,7 @@ input {
   }
 
   .hero-copy,
-  .section-copy,
-  .metric-card strong {
+  .section-copy {
     max-width: none;
   }
 
@@ -599,11 +549,6 @@ input {
   .research-card h2,
   .preview-header h2 {
     font-size: clamp(0.86rem, 3.7vw, 1rem);
-  }
-
-  .metric-card strong {
-    font-size: clamp(0.84rem, 3.9vw, 0.98rem);
-    line-height: 1.22;
   }
 
   .hero-card,
