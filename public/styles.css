@@ -139,7 +139,7 @@ input {
 }
 
 .hero-kicker {
-  width: min(100%, 860px);
+  width: min(100%, 1040px);
   margin-inline: auto;
 }
 
@@ -193,8 +193,8 @@ input {
 }
 
 .hero-kicker h1 {
-  max-width: 19ch;
-  font-size: clamp(1.75rem, 2.9vw, 2.85rem);
+  max-width: 28ch;
+  font-size: clamp(1.9rem, 3.15vw, 3rem);
   line-height: 1.06;
   text-wrap: balance;
   margin-inline: auto;
