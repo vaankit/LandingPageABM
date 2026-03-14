@@ -138,6 +138,11 @@ input {
   text-align: center;
 }
 
+.hero-kicker {
+  width: min(100%, 860px);
+  margin-inline: auto;
+}
+
 .brand-mark {
   display: inline-flex;
   align-items: center;
@@ -189,15 +194,15 @@ input {
 }
 
 .hero-kicker h1 {
-  max-width: 15ch;
-  font-size: clamp(1.6rem, 2.7vw, 2.5rem);
+  max-width: 19ch;
+  font-size: clamp(1.75rem, 2.9vw, 2.85rem);
   line-height: 1.06;
   text-wrap: balance;
   margin-inline: auto;
 }
 
 .hero-copy {
-  max-width: 62ch;
+  max-width: 72ch;
   margin: 10px 0 0;
   color: var(--text-soft);
   font-size: 0.84rem;
@@ -210,6 +215,8 @@ input {
   grid-template-columns: 1.1fr 0.9fr;
   gap: 16px;
   margin-top: 14px;
+  width: min(100%, 920px);
+  margin-inline: auto;
 }
 
 .metric-card {
@@ -233,7 +240,7 @@ input {
 
 .metric-card strong {
   display: block;
-  max-width: 16ch;
+  max-width: 20ch;
   font-size: clamp(1rem, 1.25vw, 1.35rem);
   line-height: 1.18;
   margin-inline: auto;
@@ -263,6 +270,8 @@ input {
   margin-bottom: 16px;
   justify-items: center;
   text-align: center;
+  width: min(100%, 860px);
+  margin-inline: auto;
 }
 
 .section-heading h2 {
@@ -566,7 +575,7 @@ input {
 
   .hero-kicker h1 {
     max-width: none;
-    font-size: clamp(1.12rem, 4.6vw, 1.55rem);
+    font-size: clamp(1.24rem, 5vw, 1.72rem);
     line-height: 1.12;
   }
 
