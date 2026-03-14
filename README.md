@@ -20,6 +20,17 @@ Local Node.js + Express app for researching a target company, generating a perso
 
 You can also use `./start.sh` for a simple local startup flow on macOS.
 
+## Supabase Auth
+
+The app is wired for Supabase Auth with secure server-verified sessions.
+
+- Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to `.env`
+- Login route: `/login`
+- Auth mode: email + password
+- The server verifies Supabase access tokens before allowing app or API access
+
+If email confirmation is enabled in your Supabase project, new users may need to confirm their email before they can sign in.
+
 ## Ollama
 
 The app is configured to use a local Ollama instance by default for richer ABM copy generation.

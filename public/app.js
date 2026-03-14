@@ -12,6 +12,7 @@ const previewTitle = document.getElementById("preview-title");
 const publishButton = document.getElementById("publish-button");
 const publishResult = document.getElementById("publish-result");
 const providerPill = document.getElementById("provider-pill");
+const logoutButton = document.getElementById("logout-button");
 
 let generateTimer;
 let lastPayload = null;
@@ -28,6 +29,10 @@ async function fetchJson(url, options = {}) {
   const data = await response.json();
 
   if (!response.ok) {
+    if (response.status === 401) {
+      window.location.href = "/login";
+      throw new Error("Authentication required.");
+    }
     throw new Error(data.error || "Request failed");
   }
 
@@ -156,6 +161,17 @@ async function initialize() {
     setStatus(error.message);
   }
 }
+
+logoutButton.addEventListener("click", async () => {
+  try {
+    await fetchJson("/api/auth/logout", {
+      method: "POST"
+    });
+    window.location.href = "/login";
+  } catch (error) {
+    setStatus(error.message);
+  }
+});
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();

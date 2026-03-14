@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
+import { requireAuth, isAuthenticated } from "./lib/auth.js";
 import apiRouter from "./routes/api.js";
 
 dotenv.config();
@@ -13,7 +14,6 @@ const publicDir = path.resolve(__dirname, "../public");
 
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
-app.use(express.static(publicDir));
 
 app.get("/api/health", (_req, res) => {
   res.json({
@@ -23,6 +23,21 @@ app.get("/api/health", (_req, res) => {
 });
 
 app.use("/api", apiRouter);
+
+app.get("/login", async (req, res) => {
+  if (await isAuthenticated(req, res)) {
+    res.redirect("/");
+    return;
+  }
+
+  res.sendFile(path.join(publicDir, "login.html"));
+});
+
+app.use(requireAuth);
+
+app.use(express.static(publicDir, {
+  index: false
+}));
 
 app.get("*", (_req, res) => {
   res.sendFile(path.join(publicDir, "index.html"));

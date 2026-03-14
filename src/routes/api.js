@@ -1,10 +1,37 @@
 import express from "express";
 import { serviceCatalog } from "../data/serviceCatalog.js";
+import { getAuthenticatedUser, isAuthenticated, login, logout, signup } from "../lib/auth.js";
 import { researchCompany } from "../services/companyResearch.js";
 import { composeLandingPage } from "../services/pageComposer.js";
 import { publishDraft } from "../services/publishers/index.js";
 
 const router = express.Router();
+
+router.get("/auth/status", async (req, res) => {
+  const authenticated = await isAuthenticated(req, res);
+  const user = authenticated ? await getAuthenticatedUser(req, res) : null;
+
+  res.json({
+    authenticated,
+    user: user ? {
+      id: user.id,
+      email: user.email
+    } : null
+  });
+});
+
+router.post("/auth/login", login);
+router.post("/auth/signup", signup);
+router.post("/auth/logout", logout);
+
+router.use(async (req, res, next) => {
+  if (await isAuthenticated(req, res)) {
+    next();
+    return;
+  }
+
+  res.status(401).json({ error: "Authentication required." });
+});
 
 router.get("/services", (_req, res) => {
   res.json({ services: serviceCatalog });

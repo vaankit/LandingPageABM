@@ -335,6 +335,13 @@ input {
   margin-bottom: 18px;
 }
 
+.preview-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
 .provider-pill {
   display: inline-flex;
   align-items: center;
@@ -345,6 +352,17 @@ input {
   color: var(--mist);
   font-size: 14px;
   font-weight: 700;
+}
+
+.logout-button {
+  border: 1px solid rgba(131, 224, 232, 0.18);
+  border-radius: 999px;
+  padding: 10px 14px;
+  background: rgba(255, 122, 89, 0.12);
+  color: var(--mist);
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
 }
 
 #preview-frame {

@@ -1,0 +1,267 @@
+import { createClient } from "@supabase/supabase-js";
+
+const ACCESS_COOKIE = "spot_ai_access_token";
+const REFRESH_COOKIE = "spot_ai_refresh_token";
+
+function parseCookies(header = "") {
+  return header
+    .split(";")
+    .map((part) => part.trim())
+    .filter(Boolean)
+    .reduce((acc, pair) => {
+      const index = pair.indexOf("=");
+      if (index === -1) {
+        return acc;
+      }
+      const key = pair.slice(0, index).trim();
+      const value = pair.slice(index + 1).trim();
+      acc[key] = decodeURIComponent(value);
+      return acc;
+    }, {});
+}
+
+function getCookieOptions(req, maxAge) {
+  const isSecure = process.env.NODE_ENV === "production" || req.secure || req.headers["x-forwarded-proto"] === "https";
+  const parts = [
+    "HttpOnly",
+    "Path=/",
+    "SameSite=Lax"
+  ];
+
+  if (typeof maxAge === "number") {
+    parts.push(`Max-Age=${maxAge}`);
+  }
+
+  if (isSecure) {
+    parts.push("Secure");
+  }
+
+  return parts.join("; ");
+}
+
+function appendCookie(res, key, value, req, maxAge) {
+  const serialized = `${key}=${encodeURIComponent(value)}; ${getCookieOptions(req, maxAge)}`;
+  const existing = res.getHeader("Set-Cookie");
+
+  if (!existing) {
+    res.setHeader("Set-Cookie", [serialized]);
+    return;
+  }
+
+  res.setHeader("Set-Cookie", Array.isArray(existing) ? [...existing, serialized] : [existing, serialized]);
+}
+
+function clearAuthCookies(req, res) {
+  appendCookie(res, ACCESS_COOKIE, "", req, 0);
+  appendCookie(res, REFRESH_COOKIE, "", req, 0);
+}
+
+function getSupabaseConfig() {
+  return {
+    url: process.env.SUPABASE_URL,
+    anonKey: process.env.SUPABASE_ANON_KEY
+  };
+}
+
+function ensureSupabaseConfigured() {
+  const { url, anonKey } = getSupabaseConfig();
+
+  if (!url || !anonKey) {
+    throw new Error("Supabase is not configured. Add SUPABASE_URL and SUPABASE_ANON_KEY to .env.");
+  }
+}
+
+function createSupabaseClient() {
+  ensureSupabaseConfigured();
+
+  const { url, anonKey } = getSupabaseConfig();
+
+  return createClient(url, anonKey, {
+    auth: {
+      persistSession: false,
+      autoRefreshToken: false
+    }
+  });
+}
+
+function getTokens(req) {
+  const cookies = parseCookies(req.headers.cookie || "");
+
+  return {
+    accessToken: cookies[ACCESS_COOKIE] || "",
+    refreshToken: cookies[REFRESH_COOKIE] || ""
+  };
+}
+
+function setSessionCookies(req, res, session) {
+  if (!session?.access_token || !session?.refresh_token) {
+    throw new Error("Supabase did not return a valid session.");
+  }
+
+  const accessTtl = typeof session.expires_in === "number" ? session.expires_in : 60 * 60;
+  const refreshTtl = 60 * 60 * 24 * 30;
+
+  appendCookie(res, ACCESS_COOKIE, session.access_token, req, accessTtl);
+  appendCookie(res, REFRESH_COOKIE, session.refresh_token, req, refreshTtl);
+}
+
+export function getAuthCookieNames() {
+  return {
+    access: ACCESS_COOKIE,
+    refresh: REFRESH_COOKIE
+  };
+}
+
+export async function getAuthenticatedUser(req, res) {
+  if (req.authUser) {
+    return req.authUser;
+  }
+
+  let supabase;
+
+  try {
+    supabase = createSupabaseClient();
+  } catch {
+    return null;
+  }
+
+  const { accessToken, refreshToken } = getTokens(req);
+
+  if (!accessToken) {
+    return null;
+  }
+
+  const { data, error } = await supabase.auth.getUser(accessToken);
+
+  if (!error && data?.user) {
+    req.authUser = data.user;
+    return data.user;
+  }
+
+  if (!refreshToken) {
+    if (res) {
+      clearAuthCookies(req, res);
+    }
+    return null;
+  }
+
+  const refreshed = await supabase.auth.refreshSession({
+    refresh_token: refreshToken
+  });
+
+  if (refreshed.error || !refreshed.data?.session) {
+    if (res) {
+      clearAuthCookies(req, res);
+    }
+    return null;
+  }
+
+  if (res) {
+    setSessionCookies(req, res, refreshed.data.session);
+  }
+
+  req.authUser = refreshed.data.user || null;
+  return req.authUser;
+}
+
+export async function isAuthenticated(req, res) {
+  const user = await getAuthenticatedUser(req, res);
+  return Boolean(user);
+}
+
+export async function requireAuth(req, res, next) {
+  if (await isAuthenticated(req, res)) {
+    next();
+    return;
+  }
+
+  if (req.path.startsWith("/api/")) {
+    res.status(401).json({ error: "Authentication required." });
+    return;
+  }
+
+  res.redirect("/login");
+}
+
+export async function login(req, res) {
+  try {
+    const email = String(req.body?.email || "").trim();
+    const password = String(req.body?.password || "");
+
+    if (!email || !password) {
+      res.status(400).json({ error: "Email and password are required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error || !data?.session) {
+      res.status(401).json({ error: error?.message || "Login failed." });
+      return;
+    }
+
+    setSessionCookies(req, res, data.session);
+    res.json({
+      ok: true,
+      user: {
+        id: data.user?.id,
+        email: data.user?.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Login failed." });
+  }
+}
+
+export async function signup(req, res) {
+  try {
+    const email = String(req.body?.email || "").trim();
+    const password = String(req.body?.password || "");
+    const fullName = String(req.body?.fullName || "").trim();
+
+    if (!email || !password) {
+      res.status(400).json({ error: "Email and password are required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          full_name: fullName || null
+        }
+      }
+    });
+
+    if (error) {
+      res.status(400).json({ error: error.message || "Sign up failed." });
+      return;
+    }
+
+    if (data?.session) {
+      setSessionCookies(req, res, data.session);
+    }
+
+    res.json({
+      ok: true,
+      requiresEmailConfirmation: !data?.session,
+      user: {
+        id: data.user?.id,
+        email: data.user?.email
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Sign up failed." });
+  }
+}
+
+export async function logout(req, res) {
+  clearAuthCookies(req, res);
+  res.json({ ok: true });
+}
