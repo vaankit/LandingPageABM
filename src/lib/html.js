@@ -753,6 +753,33 @@ export function renderLandingPageHtml(page) {
         </div>
       </section>
     </div>
+    <script>
+      document.addEventListener("click", (event) => {
+        const anchor = event.target.closest("a[href]");
+
+        if (!anchor) {
+          return;
+        }
+
+        const href = anchor.getAttribute("href") || "";
+
+        if (!href || href === "#") {
+          event.preventDefault();
+          return;
+        }
+
+        if (href.startsWith("#")) {
+          event.preventDefault();
+          const section = document.querySelector(href);
+          if (section) {
+            section.scrollIntoView({ behavior: "smooth", block: "start" });
+          }
+          return;
+        }
+
+        event.preventDefault();
+      });
+    </script>
   </body>
 </html>`;
 }
