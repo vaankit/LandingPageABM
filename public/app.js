@@ -17,6 +17,7 @@ const logoutButton = document.getElementById("logout-button");
 let generateTimer;
 let lastPayload = null;
 let lastPage = null;
+let previewBlobUrl = null;
 
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
@@ -74,7 +75,15 @@ function renderResearch(research) {
 
 function updatePreview(page) {
   previewTitle.textContent = page.pageName;
-  previewFrame.srcdoc = page.previewHtml;
+  if (previewBlobUrl) {
+    URL.revokeObjectURL(previewBlobUrl);
+  }
+
+  previewBlobUrl = URL.createObjectURL(new Blob([page.previewHtml], {
+    type: "text/html"
+  }));
+  previewFrame.removeAttribute("srcdoc");
+  previewFrame.src = previewBlobUrl;
   lastPage = page;
 }
 
@@ -197,3 +206,9 @@ contactTitleInput.addEventListener("input", schedulePreview);
 serviceOptions.addEventListener("change", schedulePreview);
 
 initialize();
+
+window.addEventListener("beforeunload", () => {
+  if (previewBlobUrl) {
+    URL.revokeObjectURL(previewBlobUrl);
+  }
+});

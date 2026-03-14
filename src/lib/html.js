@@ -740,7 +740,7 @@ export function renderLandingPageHtml(page) {
             <h2>${escapeHtml(ctaText)}</h2>
             <p>${escapeHtml(ctaSubtext)}</p>
           </div>
-          <a class="cta-button" href="#">Book Intro Call</a>
+          <a class="cta-button" href="#contact">Book Intro Call</a>
         </div>
         <div class="footer">
           <div class="footer-brand">
@@ -753,33 +753,6 @@ export function renderLandingPageHtml(page) {
         </div>
       </section>
     </div>
-    <script>
-      document.addEventListener("click", (event) => {
-        const anchor = event.target.closest("a[href]");
-
-        if (!anchor) {
-          return;
-        }
-
-        const href = anchor.getAttribute("href") || "";
-
-        if (!href || href === "#") {
-          event.preventDefault();
-          return;
-        }
-
-        if (href.startsWith("#")) {
-          event.preventDefault();
-          const section = document.querySelector(href);
-          if (section) {
-            section.scrollIntoView({ behavior: "smooth", block: "start" });
-          }
-          return;
-        }
-
-        event.preventDefault();
-      });
-    </script>
   </body>
 </html>`;
 }
