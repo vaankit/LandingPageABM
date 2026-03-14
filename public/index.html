@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Spot.AI Landing Page Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="control-panel">
+        <div class="ambient-grid" aria-hidden="true">
+          <span class="orb orb-a"></span>
+          <span class="orb orb-b"></span>
+          <span class="orb orb-c"></span>
+        </div>
+        <div class="panel-brand">
+          <div class="brand-mark" aria-hidden="true">
+            <span class="brand-dot"></span>
+            <span class="brand-type">Spot.AI</span>
+          </div>
+          <div>
+            <p class="eyebrow">Landing Page Lab</p>
+            <h1>Modern ABM landing pages with a Wellington future-tech edge</h1>
+            <p class="panel-copy">A darker, sharper generator tuned for an IT professional in Wellington, New Zealand and branded for Spot.AI.</p>
+          </div>
+        </div>
+
+        <section class="intro-card">
+          <p class="eyebrow">Spot.AI</p>
+          <h2>AI strategy, product engineering, and automation for modern B2B teams.</h2>
+          <p>Use this tool to research a company, generate a personalized landing page, and shape the pitch around your own Spot.AI brand.</p>
+          <div class="intro-pills">
+            <span>Wellington, NZ</span>
+            <span>Futuristic UI</span>
+            <span>Ollama-powered copy</span>
+          </div>
+        </section>
+
+        <form id="generator-form" class="generator-form">
+          <label class="field">
+            <span>Target Company URL</span>
+            <input id="companyUrl" name="companyUrl" type="url" placeholder="https://www.example.com" required />
+          </label>
+
+          <div class="field-row">
+            <label class="field">
+              <span>Contact Name</span>
+              <input id="contactName" name="contactName" type="text" placeholder="Melissa" required />
+            </label>
+
+            <label class="field">
+              <span>Contact Title</span>
+              <input id="contactTitle" name="contactTitle" type="text" placeholder="CTO" />
+            </label>
+          </div>
+
+          <fieldset class="services-fieldset">
+            <legend>Recommended Services</legend>
+            <div id="service-options" class="service-options"></div>
+          </fieldset>
+
+          <div class="actions">
+            <button type="submit" class="primary-button">Generate Preview</button>
+            <button type="button" id="publish-button" class="secondary-button">Publish Draft</button>
+          </div>
+        </form>
+
+        <section class="status-card">
+          <div>
+            <p class="eyebrow">Status</p>
+            <p id="status-text">Waiting for inputs.</p>
+          </div>
+          <pre id="publish-result" class="publish-result" hidden></pre>
+        </section>
+
+        <section class="research-card">
+          <p class="eyebrow">Research Snapshot</p>
+          <h2 id="research-company">No company analyzed yet</h2>
+          <p id="research-summary">Enter a URL and contact name to generate the first preview.</p>
+          <ul id="research-points" class="research-points"></ul>
+        </section>
+      </aside>
+
+      <main class="preview-panel">
+        <div class="preview-header">
+          <div>
+            <p class="eyebrow">Live Preview</p>
+            <h2 id="preview-title">Spot.AI landing page preview</h2>
+          </div>
+          <span id="provider-pill" class="provider-pill">Provider: local-json</span>
+        </div>
+        <iframe id="preview-frame" title="Landing page preview"></iframe>
+      </main>
+    </div>
+
+    <script type="module" src="/app.js"></script>
+  </body>
+</html>

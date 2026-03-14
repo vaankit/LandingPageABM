@@ -1,0 +1,9 @@
+services:
+  - type: web
+    name: spot-ai-landing-page-lab
+    runtime: node
+    plan: free
+    autoDeploy: true
+    buildCommand: npm install
+    startCommand: npm start
+    healthCheckPath: /api/health

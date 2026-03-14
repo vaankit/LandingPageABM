@@ -1,0 +1,16 @@
+{
+  "name": "spot-ai-landing-page-lab",
+  "version": "1.0.0",
+  "description": "Local Spot.AI ABM landing page creator with pluggable publishing adapters.",
+  "type": "module",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2"
+  }
+}
