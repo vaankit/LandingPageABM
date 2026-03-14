@@ -1,6 +1,6 @@
 import express from "express";
 import { serviceCatalog } from "../data/serviceCatalog.js";
-import { getAuthenticatedUser, isAuthenticated, login, logout, signup } from "../lib/auth.js";
+import { getAuthenticatedUser, isAuthenticated, login, logout, resendConfirmation, signup } from "../lib/auth.js";
 import { researchCompany } from "../services/companyResearch.js";
 import { composeLandingPage } from "../services/pageComposer.js";
 import { publishDraft } from "../services/publishers/index.js";
@@ -22,6 +22,7 @@ router.get("/auth/status", async (req, res) => {
 
 router.post("/auth/login", login);
 router.post("/auth/signup", signup);
+router.post("/auth/resend-confirmation", resendConfirmation);
 router.post("/auth/logout", logout);
 
 router.use(async (req, res, next) => {

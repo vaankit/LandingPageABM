@@ -121,6 +121,18 @@
         font-size: 13px;
         color: var(--body);
       }
+      .secondary-action {
+        margin-top: 12px;
+        border: 1px solid rgba(131, 224, 232, 0.16);
+        border-radius: 999px;
+        padding: 12px 16px;
+        width: 100%;
+        background: rgba(255,255,255,0.03);
+        color: var(--mist);
+        font: inherit;
+        font-weight: 700;
+        cursor: pointer;
+      }
       .error {
         min-height: 22px;
         margin-top: 14px;
@@ -165,6 +177,7 @@
       </form>
 
       <div id="message" class="error"></div>
+      <button id="resend-button" class="secondary-action" type="button">Resend Confirmation Email</button>
       <div class="meta">
         If email confirmation is enabled in Supabase, new users may need to confirm their email before signing in.
       </div>
@@ -176,6 +189,7 @@
       const title = document.getElementById("title");
       const subtitle = document.getElementById("subtitle");
       const submitButton = document.getElementById("submit-button");
+      const resendButton = document.getElementById("resend-button");
       const nameField = document.getElementById("name-field");
       const message = document.getElementById("message");
       let mode = "login";
@@ -225,7 +239,7 @@
         const lowerMessage = rawMessage.toLowerCase();
 
         if (currentMode === "signup" && lowerMessage.includes("email rate limit exceeded")) {
-          return "That account likely already exists. Check your inbox for the confirmation email, or switch to Sign In if the email has already been confirmed.";
+          return "That account likely already exists. Check your inbox for the confirmation email, or use the resend button below after the cooldown if needed.";
         }
 
         if (currentMode === "signup" && lowerMessage.includes("user already registered")) {
@@ -278,6 +292,21 @@
           }
 
           window.location.href = "/";
+        } catch (error) {
+          message.textContent = normalizeAuthError(error, mode);
+        }
+      });
+
+      resendButton.addEventListener("click", async () => {
+        message.textContent = "";
+        message.classList.remove("success");
+
+        try {
+          await postJson("/api/auth/resend-confirmation", {
+            email: document.getElementById("email").value.trim()
+          });
+          message.textContent = "Confirmation email sent. Open that email and finish confirmation before signing in.";
+          message.classList.add("success");
         } catch (error) {
           message.textContent = normalizeAuthError(error, mode);
         }

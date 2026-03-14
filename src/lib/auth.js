@@ -84,6 +84,28 @@ function createSupabaseClient() {
   });
 }
 
+function getRequestOrigin(req) {
+  const configuredUrl = String(process.env.APP_URL || "").trim();
+  if (configuredUrl) {
+    return configuredUrl.replace(/\/+$/, "");
+  }
+
+  const host = req.headers["x-forwarded-host"] || req.headers.host;
+  const proto = req.headers["x-forwarded-proto"] || (req.secure ? "https" : "http");
+
+  if (host) {
+    return `${proto}://${host}`;
+  }
+
+  return "http://localhost:3001";
+}
+
+function buildRedirectUrl(req, path = "/login") {
+  const origin = getRequestOrigin(req);
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${origin}${normalizedPath}`;
+}
+
 function getTokens(req) {
   const cookies = parseCookies(req.headers.cookie || "");
 
@@ -233,6 +255,7 @@ export async function signup(req, res) {
       email,
       password,
       options: {
+        emailRedirectTo: buildRedirectUrl(req, "/login"),
         data: {
           full_name: fullName || null
         }
@@ -258,6 +281,68 @@ export async function signup(req, res) {
     });
   } catch (error) {
     res.status(500).json({ error: error.message || "Sign up failed." });
+  }
+}
+
+export async function resendConfirmation(req, res) {
+  try {
+    const email = String(req.body?.email || "").trim();
+
+    if (!email) {
+      res.status(400).json({ error: "Email is required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { error } = await supabase.auth.resend({
+      type: "signup",
+      email,
+      options: {
+        emailRedirectTo: buildRedirectUrl(req, "/login")
+      }
+    });
+
+    if (error) {
+      res.status(400).json({ error: error.message || "Unable to resend confirmation email." });
+      return;
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Unable to resend confirmation email." });
+  }
+}
+
+export async function confirmEmail(req, res) {
+  try {
+    const tokenHash = String(req.query?.token_hash || "").trim();
+    const type = String(req.query?.type || "").trim();
+
+    if (!tokenHash || !type) {
+      res.redirect("/login");
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.auth.verifyOtp({
+      token_hash: tokenHash,
+      type
+    });
+
+    if (error) {
+      res.redirect("/login");
+      return;
+    }
+
+    if (data?.session) {
+      setSessionCookies(req, res, data.session);
+      res.redirect("/");
+      return;
+    }
+
+    res.redirect("/login");
+  } catch {
+    res.redirect("/login");
   }
 }
 

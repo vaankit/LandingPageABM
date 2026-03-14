@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 import express from "express";
 import path from "path";
 import { fileURLToPath } from "url";
-import { requireAuth, isAuthenticated } from "./lib/auth.js";
+import { confirmEmail, requireAuth, isAuthenticated } from "./lib/auth.js";
 import apiRouter from "./routes/api.js";
 
 dotenv.config();
@@ -32,6 +32,8 @@ app.get("/login", async (req, res) => {
 
   res.sendFile(path.join(publicDir, "login.html"));
 });
+
+app.get("/auth/confirm", confirmEmail);
 
 app.use(requireAuth);
 
