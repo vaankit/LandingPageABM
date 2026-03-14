@@ -186,18 +186,18 @@ input {
 }
 
 .hero-kicker h1 {
-  max-width: 9.2ch;
-  font-size: clamp(3.2rem, 7vw, 5.6rem);
-  line-height: 0.91;
-  text-wrap: balance;
+  max-width: 10.5ch;
+  font-size: clamp(2.9rem, 5.8vw, 4.9rem);
+  line-height: 0.95;
+  text-wrap: pretty;
 }
 
 .hero-copy {
-  max-width: 30ch;
+  max-width: 34ch;
   margin: 16px 0 0;
   color: var(--text-soft);
-  font-size: 1.04rem;
-  line-height: 1.7;
+  font-size: 1rem;
+  line-height: 1.65;
 }
 
 .hero-metrics {
@@ -227,9 +227,9 @@ input {
 
 .metric-card strong {
   display: block;
-  max-width: 13ch;
-  font-size: clamp(1.55rem, 2.4vw, 2.5rem);
-  line-height: 1.02;
+  max-width: 14ch;
+  font-size: clamp(1.35rem, 2vw, 2rem);
+  line-height: 1.08;
 }
 
 .metric-list {
@@ -255,14 +255,15 @@ input {
 }
 
 .section-heading h2 {
-  font-size: clamp(2rem, 3vw, 3rem);
-  line-height: 0.95;
+  font-size: clamp(1.7rem, 2.5vw, 2.4rem);
+  line-height: 1.02;
 }
 
 .section-copy {
   margin: 0;
   color: var(--text-soft);
-  line-height: 1.7;
+  font-size: 0.96rem;
+  line-height: 1.6;
 }
 
 .generator-form {
@@ -412,15 +413,16 @@ input {
 .status-card h2,
 .research-card h2,
 .preview-header h2 {
-  font-size: clamp(1.55rem, 2.1vw, 2.1rem);
-  line-height: 1;
+  font-size: clamp(1.3rem, 1.8vw, 1.75rem);
+  line-height: 1.08;
 }
 
 .status-card p,
 .research-card p {
   margin: 10px 0 0;
   color: var(--text-soft);
-  line-height: 1.65;
+  font-size: 0.95rem;
+  line-height: 1.6;
 }
 
 .research-points {
@@ -549,13 +551,35 @@ input {
 
   .hero-kicker h1 {
     max-width: none;
-    font-size: clamp(2.4rem, 14vw, 4rem);
+    font-size: clamp(2.2rem, 10vw, 3.3rem);
+    line-height: 0.98;
   }
 
   .hero-copy,
   .section-copy,
   .metric-card strong {
     max-width: none;
+  }
+
+  .hero-copy {
+    font-size: 0.95rem;
+    line-height: 1.58;
+  }
+
+  .section-heading h2 {
+    font-size: clamp(1.5rem, 7vw, 2rem);
+    line-height: 1.08;
+  }
+
+  .status-card h2,
+  .research-card h2,
+  .preview-header h2 {
+    font-size: clamp(1.18rem, 6vw, 1.5rem);
+  }
+
+  .metric-card strong {
+    font-size: clamp(1.2rem, 6.8vw, 1.65rem);
+    line-height: 1.12;
   }
 
   .actions {
