@@ -134,6 +134,8 @@ input {
   grid-template-columns: 1fr;
   gap: 10px;
   align-items: start;
+  justify-items: center;
+  text-align: center;
 }
 
 .brand-mark {
@@ -191,6 +193,7 @@ input {
   font-size: clamp(1.6rem, 2.7vw, 2.5rem);
   line-height: 1.06;
   text-wrap: balance;
+  margin-inline: auto;
 }
 
 .hero-copy {
@@ -199,6 +202,7 @@ input {
   color: var(--text-soft);
   font-size: 0.84rem;
   line-height: 1.46;
+  margin-inline: auto;
 }
 
 .hero-metrics {
@@ -215,6 +219,7 @@ input {
   background:
     linear-gradient(180deg, rgba(16, 25, 33, 0.96), rgba(14, 21, 28, 0.98));
   box-shadow: var(--shadow-md);
+  text-align: center;
 }
 
 .metric-label {
@@ -231,15 +236,18 @@ input {
   max-width: 16ch;
   font-size: clamp(1rem, 1.25vw, 1.35rem);
   line-height: 1.18;
+  margin-inline: auto;
 }
 
 .metric-list {
   margin: 0;
-  padding-left: 18px;
+  padding-left: 0;
   display: grid;
   gap: 8px;
   color: var(--text-soft);
   line-height: 1.48;
+  list-style-position: inside;
+  justify-items: center;
 }
 
 .builder-card {
@@ -249,10 +257,12 @@ input {
 
 .section-heading {
   display: grid;
-  grid-template-columns: 1fr minmax(220px, 320px);
+  grid-template-columns: 1fr;
   gap: 14px;
   align-items: end;
   margin-bottom: 16px;
+  justify-items: center;
+  text-align: center;
 }
 
 .section-heading h2 {
@@ -409,6 +419,7 @@ input {
 .status-card,
 .research-card {
   padding: 20px;
+  text-align: center;
 }
 
 .status-card h2,
@@ -428,10 +439,12 @@ input {
 
 .research-points {
   margin: 18px 0 0;
-  padding-left: 18px;
+  padding-left: 0;
   display: grid;
   gap: 10px;
   color: var(--text-soft);
+  list-style-position: inside;
+  justify-items: center;
 }
 
 .publish-result {
@@ -457,11 +470,12 @@ input {
 }
 
 .preview-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+  display: grid;
+  justify-items: center;
+  align-items: center;
   gap: 16px;
   margin-bottom: 18px;
+  text-align: center;
 }
 
 .preview-actions {
@@ -469,7 +483,7 @@ input {
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
-  justify-content: flex-end;
+  justify-content: center;
 }
 
 .provider-pill {
