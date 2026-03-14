@@ -8,16 +8,23 @@ const researchCompany = document.getElementById("research-company");
 const researchSummary = document.getElementById("research-summary");
 const researchPoints = document.getElementById("research-points");
 const previewFrame = document.getElementById("preview-frame");
+const previewCard = document.getElementById("preview-card");
 const previewTitle = document.getElementById("preview-title");
 const publishButton = document.getElementById("publish-button");
 const publishResult = document.getElementById("publish-result");
-const providerPill = document.getElementById("provider-pill");
+const openPreviewButton = document.getElementById("open-preview-button");
+const fullscreenPreviewButton = document.getElementById("fullscreen-preview-button");
 const logoutButton = document.getElementById("logout-button");
 
 let generateTimer;
 let lastPayload = null;
 let lastPage = null;
 let previewBlobUrl = null;
+
+function setPreviewActionState(enabled) {
+  openPreviewButton.disabled = !enabled;
+  fullscreenPreviewButton.disabled = !enabled;
+}
 
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
@@ -85,6 +92,49 @@ function updatePreview(page) {
   previewFrame.removeAttribute("srcdoc");
   previewFrame.src = previewBlobUrl;
   lastPage = page;
+  setPreviewActionState(true);
+}
+
+function requirePreviewForAction() {
+  if (previewBlobUrl) {
+    return true;
+  }
+
+  setStatus("Generate a preview first.");
+  return false;
+}
+
+function openPreviewInWindow() {
+  if (!requirePreviewForAction()) {
+    return;
+  }
+
+  const popupUrl = URL.createObjectURL(new Blob([lastPage.previewHtml], {
+    type: "text/html"
+  }));
+  const popup = window.open(popupUrl, "_blank", "noopener,noreferrer");
+  if (!popup) {
+    setStatus("Allow pop-ups to open the full preview in a new tab.");
+    return;
+  }
+  window.setTimeout(() => URL.revokeObjectURL(popupUrl), 60 * 1000);
+}
+
+async function togglePreviewFullscreen() {
+  if (!requirePreviewForAction()) {
+    return;
+  }
+
+  try {
+    if (document.fullscreenElement === previewCard) {
+      await document.exitFullscreen();
+      return;
+    }
+
+    await previewCard.requestFullscreen();
+  } catch (error) {
+    setStatus(error.message || "Unable to enter fullscreen preview.");
+  }
 }
 
 async function generatePreview() {
@@ -151,21 +201,15 @@ async function publishDraft() {
 
   updatePreview(data.page);
   renderResearch(data.research);
-  providerPill.textContent = `Provider: ${data.publication.provider}`;
   publishResult.hidden = false;
   publishResult.textContent = JSON.stringify(data.publication, null, 2);
-  setStatus(`Draft handled by ${data.publication.provider}.`);
+  setStatus("Draft published successfully.");
 }
 
 async function initialize() {
   try {
-    const [servicesResponse, healthResponse] = await Promise.all([
-      fetchJson("/api/services"),
-      fetchJson("/api/health")
-    ]);
-
+    const servicesResponse = await fetchJson("/api/services");
     renderServices(servicesResponse.services);
-    providerPill.textContent = `Provider: ${healthResponse.provider}`;
   } catch (error) {
     setStatus(error.message);
   }
@@ -200,11 +244,20 @@ publishButton.addEventListener("click", async () => {
   }
 });
 
+openPreviewButton.addEventListener("click", () => {
+  openPreviewInWindow();
+});
+
+fullscreenPreviewButton.addEventListener("click", async () => {
+  await togglePreviewFullscreen();
+});
+
 companyUrlInput.addEventListener("input", schedulePreview);
 contactNameInput.addEventListener("input", schedulePreview);
 contactTitleInput.addEventListener("input", schedulePreview);
 serviceOptions.addEventListener("change", schedulePreview);
 
+setPreviewActionState(false);
 initialize();
 
 window.addEventListener("beforeunload", () => {
