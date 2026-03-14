@@ -33,6 +33,10 @@ app.get("/login", async (req, res) => {
   res.sendFile(path.join(publicDir, "login.html"));
 });
 
+app.get("/reset-password", (_req, res) => {
+  res.sendFile(path.join(publicDir, "reset-password.html"));
+});
+
 app.get("/auth/confirm", confirmEmail);
 
 app.use(requireAuth);

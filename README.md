@@ -26,11 +26,12 @@ The app is wired for Supabase Auth with secure server-verified sessions.
 
 - Add `SUPABASE_URL` and `SUPABASE_ANON_KEY` to `.env`
 - Set `APP_URL` to your deployed app URL in production
+- Leave `ALLOW_SELF_SIGNUP=false` if you want all users to be created from the Supabase dashboard
 - Login route: `/login`
 - Auth mode: email + password
 - The server verifies Supabase access tokens before allowing app or API access
 
-If email confirmation is enabled in your Supabase project, new users may need to confirm their email before they can sign in. The signup flow sends confirmation emails back to the current app URL, but your Supabase Auth URL settings should also list the deployed URL as an allowed redirect.
+If email confirmation is enabled in your Supabase project, new users may need to confirm their email before they can sign in. Dashboard-created users are already the source of truth for the app, so there is no separate sync layer to maintain. Recovery and confirmation emails should use your deployed URL in Supabase Auth URL Configuration.
 
 ## Ollama
 

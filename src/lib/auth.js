@@ -106,6 +106,10 @@ function buildRedirectUrl(req, path = "/login") {
   return `${origin}${normalizedPath}`;
 }
 
+function isSelfSignupEnabled() {
+  return String(process.env.ALLOW_SELF_SIGNUP || "false").trim().toLowerCase() === "true";
+}
+
 function getTokens(req) {
   const cookies = parseCookies(req.headers.cookie || "");
 
@@ -241,6 +245,11 @@ export async function login(req, res) {
 
 export async function signup(req, res) {
   try {
+    if (!isSelfSignupEnabled()) {
+      res.status(403).json({ error: "Self-signup is disabled. Create users from the Supabase dashboard instead." });
+      return;
+    }
+
     const email = String(req.body?.email || "").trim();
     const password = String(req.body?.password || "");
     const fullName = String(req.body?.fullName || "").trim();
@@ -313,6 +322,104 @@ export async function resendConfirmation(req, res) {
   }
 }
 
+export async function requestPasswordReset(req, res) {
+  try {
+    const email = String(req.body?.email || "").trim();
+
+    if (!email) {
+      res.status(400).json({ error: "Email is required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: buildRedirectUrl(req, "/reset-password")
+    });
+
+    if (error) {
+      res.status(400).json({ error: error.message || "Unable to send password reset email." });
+      return;
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Unable to send password reset email." });
+  }
+}
+
+export async function establishRecoverySession(req, res) {
+  try {
+    const accessToken = String(req.body?.accessToken || "").trim();
+    const refreshToken = String(req.body?.refreshToken || "").trim();
+
+    if (!accessToken || !refreshToken) {
+      res.status(400).json({ error: "Recovery tokens are required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { data, error } = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+
+    if (error || !data?.session) {
+      res.status(400).json({ error: error?.message || "Unable to establish recovery session." });
+      return;
+    }
+
+    setSessionCookies(req, res, data.session);
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Unable to establish recovery session." });
+  }
+}
+
+export async function updatePassword(req, res) {
+  try {
+    const password = String(req.body?.password || "");
+
+    if (!password) {
+      res.status(400).json({ error: "Password is required." });
+      return;
+    }
+
+    const supabase = createSupabaseClient();
+    const { accessToken, refreshToken } = getTokens(req);
+
+    if (!accessToken || !refreshToken) {
+      res.status(401).json({ error: "Recovery session not found." });
+      return;
+    }
+
+    const sessionResult = await supabase.auth.setSession({
+      access_token: accessToken,
+      refresh_token: refreshToken
+    });
+
+    if (sessionResult.error || !sessionResult.data?.session) {
+      clearAuthCookies(req, res);
+      res.status(401).json({ error: sessionResult.error?.message || "Recovery session expired." });
+      return;
+    }
+
+    const updateResult = await supabase.auth.updateUser({ password });
+
+    if (updateResult.error) {
+      res.status(400).json({ error: updateResult.error.message || "Unable to update password." });
+      return;
+    }
+
+    if (updateResult.data?.session) {
+      setSessionCookies(req, res, updateResult.data.session);
+    }
+
+    res.json({ ok: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message || "Unable to update password." });
+  }
+}
+
 export async function confirmEmail(req, res) {
   try {
     const tokenHash = String(req.query?.token_hash || "").trim();
@@ -336,11 +443,11 @@ export async function confirmEmail(req, res) {
 
     if (data?.session) {
       setSessionCookies(req, res, data.session);
-      res.redirect("/");
+      res.redirect(type === "recovery" ? "/reset-password" : "/");
       return;
     }
 
-    res.redirect("/login");
+    res.redirect(type === "recovery" ? "/reset-password" : "/login");
   } catch {
     res.redirect("/login");
   }

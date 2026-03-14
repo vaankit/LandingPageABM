@@ -60,24 +60,11 @@
         letter-spacing: -0.04em;
       }
       .tabs {
-        display: flex;
-        gap: 10px;
         margin: 22px 0 18px;
       }
-      .tab {
-        border: 1px solid rgba(131, 224, 232, 0.14);
-        border-radius: 999px;
-        padding: 10px 16px;
-        background: rgba(255,255,255,0.04);
-        color: var(--mist);
-        font: inherit;
-        font-weight: 700;
-        cursor: pointer;
-      }
-      .tab.active {
-        background: linear-gradient(135deg, var(--harbor), var(--violet));
-        color: #04111d;
-        border-color: transparent;
+      .tabs p {
+        margin: 0;
+        color: var(--body);
       }
       h1 {
         margin: 0 0 10px;
@@ -141,9 +128,6 @@
       .success {
         color: #9ef0b6;
       }
-      .hidden {
-        display: none;
-      }
     </style>
   </head>
   <body>
@@ -153,18 +137,13 @@
         <span>Spot.AI</span>
       </div>
       <h1 id="title">Sign in to open the lab</h1>
-      <p id="subtitle">Use a Supabase Auth user to access the application securely.</p>
+      <p id="subtitle">Accounts are managed in your Supabase dashboard. Sign in here with a user you already created there.</p>
 
       <div class="tabs">
-        <button class="tab active" data-mode="login" type="button">Sign In</button>
-        <button class="tab" data-mode="signup" type="button">Create User</button>
+        <p>Create users in Supabase `Authentication -> Users`, then sign in here.</p>
       </div>
 
       <form id="auth-form">
-        <label id="name-field" class="hidden">
-          Full name
-          <input id="fullName" name="fullName" type="text" autocomplete="name" />
-        </label>
         <label>
           Email
           <input id="email" name="email" type="email" autocomplete="email" required autofocus />
@@ -178,43 +157,17 @@
 
       <div id="message" class="error"></div>
       <button id="resend-button" class="secondary-action" type="button">Resend Confirmation Email</button>
+      <button id="reset-button" class="secondary-action" type="button">Send Password Reset Email</button>
       <div class="meta">
-        If email confirmation is enabled in Supabase, new users may need to confirm their email before signing in.
+        Password recovery and confirmation emails should point to your deployed Render URL once Supabase URL configuration is updated.
       </div>
     </main>
 
     <script>
-      const tabs = [...document.querySelectorAll(".tab")];
       const form = document.getElementById("auth-form");
-      const title = document.getElementById("title");
-      const subtitle = document.getElementById("subtitle");
-      const submitButton = document.getElementById("submit-button");
       const resendButton = document.getElementById("resend-button");
-      const nameField = document.getElementById("name-field");
+      const resetButton = document.getElementById("reset-button");
       const message = document.getElementById("message");
-      let mode = "login";
-
-      function setMode(nextMode) {
-        mode = nextMode;
-        for (const tab of tabs) {
-          tab.classList.toggle("active", tab.dataset.mode === nextMode);
-        }
-
-        const isSignup = nextMode === "signup";
-        title.textContent = isSignup ? "Create a secure user" : "Sign in to open the lab";
-        subtitle.textContent = isSignup
-          ? "Create a Supabase Auth user for secure access to the application."
-          : "Use a Supabase Auth user to access the application securely.";
-        submitButton.textContent = isSignup ? "Create User" : "Sign In";
-        nameField.classList.toggle("hidden", !isSignup);
-        document.getElementById("fullName").required = isSignup;
-        message.textContent = "";
-        message.classList.remove("success");
-      }
-
-      tabs.forEach((tab) => {
-        tab.addEventListener("click", () => setMode(tab.dataset.mode));
-      });
 
       async function postJson(url, payload) {
         const response = await fetch(url, {
@@ -234,19 +187,11 @@
         return data;
       }
 
-      function normalizeAuthError(error, currentMode) {
+      function normalizeAuthError(error) {
         const rawMessage = String(error?.message || "Request failed.");
         const lowerMessage = rawMessage.toLowerCase();
 
-        if (currentMode === "signup" && lowerMessage.includes("email rate limit exceeded")) {
-          return "That account likely already exists. Check your inbox for the confirmation email, or use the resend button below after the cooldown if needed.";
-        }
-
-        if (currentMode === "signup" && lowerMessage.includes("user already registered")) {
-          return "That email is already registered. Use Sign In instead.";
-        }
-
-        if (currentMode === "login" && lowerMessage.includes("email not confirmed")) {
+        if (lowerMessage.includes("email not confirmed")) {
           return "Your account exists, but the email address still needs to be confirmed before you can sign in.";
         }
 
@@ -273,27 +218,14 @@
 
         const payload = {
           email: document.getElementById("email").value.trim(),
-          password: document.getElementById("password").value,
-          fullName: document.getElementById("fullName").value.trim()
+          password: document.getElementById("password").value
         };
 
         try {
-          if (mode === "signup") {
-            const data = await postJson("/api/auth/signup", payload);
-
-            if (data.requiresEmailConfirmation) {
-              message.textContent = "User created. Check the email inbox to confirm the account before signing in.";
-              message.classList.add("success");
-              setMode("login");
-              return;
-            }
-          } else {
-            await postJson("/api/auth/login", payload);
-          }
-
+          await postJson("/api/auth/login", payload);
           window.location.href = "/";
         } catch (error) {
-          message.textContent = normalizeAuthError(error, mode);
+          message.textContent = normalizeAuthError(error);
         }
       });
 
@@ -308,7 +240,22 @@
           message.textContent = "Confirmation email sent. Open that email and finish confirmation before signing in.";
           message.classList.add("success");
         } catch (error) {
-          message.textContent = normalizeAuthError(error, mode);
+          message.textContent = normalizeAuthError(error);
+        }
+      });
+
+      resetButton.addEventListener("click", async () => {
+        message.textContent = "";
+        message.classList.remove("success");
+
+        try {
+          await postJson("/api/auth/request-password-reset", {
+            email: document.getElementById("email").value.trim()
+          });
+          message.textContent = "Password reset email sent. Use the link in that email to choose a new password.";
+          message.classList.add("success");
+        } catch (error) {
+          message.textContent = normalizeAuthError(error);
         }
       });
 
