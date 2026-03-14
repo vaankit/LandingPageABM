@@ -126,13 +126,13 @@ input {
 }
 
 .hero-card {
-  padding: 24px 28px 28px;
+  padding: 22px 24px 24px;
 }
 
 .hero-top {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 16px;
+  gap: 10px;
   align-items: start;
 }
 
@@ -140,9 +140,9 @@ input {
   display: inline-flex;
   align-items: center;
   gap: 14px;
-  min-height: 68px;
+  min-height: 62px;
   width: fit-content;
-  padding: 18px 22px;
+  padding: 15px 18px;
   border-radius: 28px;
   background:
     linear-gradient(180deg, rgba(31, 44, 58, 0.96), rgba(20, 31, 41, 0.98));
@@ -187,25 +187,25 @@ input {
 }
 
 .hero-kicker h1 {
-  max-width: 12ch;
-  font-size: clamp(1.95rem, 3.7vw, 3.2rem);
-  line-height: 1.02;
-  text-wrap: pretty;
+  max-width: 15ch;
+  font-size: clamp(1.6rem, 2.7vw, 2.5rem);
+  line-height: 1.06;
+  text-wrap: balance;
 }
 
 .hero-copy {
-  max-width: 48ch;
-  margin: 14px 0 0;
+  max-width: 62ch;
+  margin: 10px 0 0;
   color: var(--text-soft);
-  font-size: 0.9rem;
-  line-height: 1.55;
+  font-size: 0.84rem;
+  line-height: 1.46;
 }
 
 .hero-metrics {
   display: grid;
   grid-template-columns: 1.1fr 0.9fr;
   gap: 16px;
-  margin-top: 18px;
+  margin-top: 14px;
 }
 
 .metric-card {
@@ -244,15 +244,15 @@ input {
 
 .builder-card {
   margin-top: 22px;
-  padding: 28px;
+  padding: 22px 24px 24px;
 }
 
 .section-heading {
   display: grid;
   grid-template-columns: 1fr minmax(220px, 320px);
-  gap: 18px;
+  gap: 14px;
   align-items: end;
-  margin-bottom: 22px;
+  margin-bottom: 16px;
 }
 
 .section-heading h2 {
@@ -408,7 +408,7 @@ input {
 
 .status-card,
 .research-card {
-  padding: 24px;
+  padding: 20px;
 }
 
 .status-card h2,
@@ -552,8 +552,8 @@ input {
 
   .hero-kicker h1 {
     max-width: none;
-    font-size: clamp(1.38rem, 6.1vw, 2rem);
-    line-height: 1.08;
+    font-size: clamp(1.12rem, 4.6vw, 1.55rem);
+    line-height: 1.12;
   }
 
   .hero-copy,
@@ -563,8 +563,8 @@ input {
   }
 
   .hero-copy {
-    font-size: 0.82rem;
-    line-height: 1.48;
+    font-size: 0.76rem;
+    line-height: 1.42;
   }
 
   .section-heading h2 {
@@ -575,12 +575,21 @@ input {
   .status-card h2,
   .research-card h2,
   .preview-header h2 {
-    font-size: clamp(0.92rem, 4vw, 1.08rem);
+    font-size: clamp(0.86rem, 3.7vw, 1rem);
   }
 
   .metric-card strong {
-    font-size: clamp(0.92rem, 4.4vw, 1.08rem);
+    font-size: clamp(0.84rem, 3.9vw, 0.98rem);
     line-height: 1.22;
+  }
+
+  .hero-card,
+  .builder-card,
+  .status-card,
+  .research-card,
+  .preview-card {
+    padding-left: 16px;
+    padding-right: 16px;
   }
 
   .actions {
