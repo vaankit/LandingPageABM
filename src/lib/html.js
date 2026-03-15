@@ -15,38 +15,16 @@ function renderList(items, className = "") {
     .join("");
 }
 
-function buildBackdropWords(page) {
-  const company = page.research.companyName || "SPOT";
-  const industry = page.research.industryLabel || "AI";
-  const city = (page.brand.location || "Wellington").split(",")[0];
-
-  return [
-    company.toUpperCase(),
-    industry.toUpperCase(),
-    city.toUpperCase()
-  ];
-}
-
-function renderBackdropWords(page) {
-  return buildBackdropWords(page)
-    .map(
-      (word, index) => `
-        <span class="backdrop-word word-${index + 1}">${escapeHtml(word)}</span>
-      `
-    )
-    .join("");
-}
-
-function renderRecognitionChips(brand, services) {
-  const chips = [
+function renderHeroPills(brand, services, research) {
+  const pills = [
     brand.location,
+    research.industryLabel,
     services[0]?.name,
-    services[1]?.name,
-    "ABM Strategy"
+    "ABM Experience"
   ].filter(Boolean);
 
-  return chips
-    .map((chip) => `<span class="recognition-chip">${escapeHtml(chip)}</span>`)
+  return pills
+    .map((pill) => `<span class="hero-pill">${escapeHtml(pill)}</span>`)
     .join("");
 }
 
@@ -69,9 +47,9 @@ function renderServiceDetails(services) {
     .map(
       (service) => `
         <article class="detail-card">
-          <div class="detail-card-top">
+          <div class="detail-card-header">
             <div>
-              <p class="section-tag">Service Detail</p>
+              <p class="detail-kicker">Recommended Service</p>
               <h3>${escapeHtml(service.cardTitle)}</h3>
             </div>
             <span class="timeline-pill">${escapeHtml(service.timeline)}</span>
@@ -107,10 +85,41 @@ function renderCaseStudies(caseStudies) {
     .map(
       (study, index) => `
         <article class="story-card">
-          <p class="story-index">Story 0${index + 1}</p>
+          <p class="card-index">0${index + 1}</p>
           <h3>${escapeHtml(study.title)}</h3>
           <p>${escapeHtml(study.summary)}</p>
         </article>
+      `
+    )
+    .join("");
+}
+
+function renderHeroSignals(signals) {
+  return signals
+    .map((signal, index) => {
+      const label = index === 0 ? "Priority" : index === 1 ? "Insight" : "Momentum";
+      return `
+        <article class="signal-card">
+          <span>${label}</span>
+          <strong>${escapeHtml(signal)}</strong>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderDashboardServiceRows(services) {
+  return services
+    .slice(0, 3)
+    .map(
+      (service, index) => `
+        <div class="dashboard-row">
+          <div class="dashboard-row-copy">
+            <span>${index + 1}</span>
+            <strong>${escapeHtml(service.name)}</strong>
+          </div>
+          <em>${escapeHtml(service.timeline)}</em>
+        </div>
       `
     )
     .join("");
@@ -130,6 +139,9 @@ export function renderLandingPageHtml(page) {
   } = page;
 
   const heroSignals = (research.evidence?.length ? research.evidence : research.pressures).slice(0, 3);
+  const primaryPressure = research.pressures[0] || "Modernization momentum is rising across the account.";
+  const industryLabel = research.industryLabel || "Industry";
+  const understandingTitle = `What we see across ${industryLabel.toLowerCase()} teams right now`;
 
   return `<!doctype html>
 <html lang="en">
@@ -142,19 +154,22 @@ export function renderLandingPageHtml(page) {
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet" />
     <style>
       :root {
-        --royal: #143cff;
-        --royal-deep: #0f31d9;
-        --royal-soft: rgba(20, 60, 255, 0.08);
-        --paper: #f7f7f3;
-        --paper-soft: #ffffff;
-        --ink: #0e1729;
-        --ink-soft: #46506a;
-        --line: rgba(14, 23, 41, 0.1);
-        --line-strong: rgba(14, 23, 41, 0.18);
-        --accent: #ff855f;
-        --shadow-lg: 0 34px 100px rgba(7, 18, 68, 0.22);
-        --shadow-md: 0 18px 44px rgba(10, 20, 64, 0.14);
-        --radius-xl: 38px;
+        --lavender: #eae7f2;
+        --navy: #0e0161;
+        --ink: #04011c;
+        --brand-blue: #273aba;
+        --cyan: #4393c8;
+        --soft-purple: #b1a7ef;
+        --magenta: #ba5cb1;
+        --plum: #5a3747;
+        --white: #ffffff;
+        --body: rgba(234, 231, 242, 0.76);
+        --body-dark: rgba(4, 1, 28, 0.72);
+        --line-light: rgba(234, 231, 242, 0.12);
+        --line-dark: rgba(4, 1, 28, 0.1);
+        --shadow-hero: 0 36px 120px rgba(4, 1, 28, 0.38);
+        --shadow-card: 0 18px 48px rgba(14, 1, 97, 0.16);
+        --radius-xl: 36px;
         --radius-lg: 28px;
         --radius-md: 20px;
       }
@@ -166,10 +181,12 @@ export function renderLandingPageHtml(page) {
       body {
         margin: 0;
         font-family: "Inter", system-ui, sans-serif;
-        color: var(--paper);
+        color: var(--white);
         background:
-          radial-gradient(circle at top left, rgba(255,255,255,0.08), transparent 26%),
-          linear-gradient(180deg, #1842ff 0%, #1138ef 48%, #0b2ed4 100%);
+          radial-gradient(circle at 10% 0%, rgba(177, 167, 239, 0.18), transparent 24%),
+          radial-gradient(circle at 88% 8%, rgba(186, 92, 177, 0.2), transparent 22%),
+          radial-gradient(circle at 70% 58%, rgba(67, 147, 200, 0.12), transparent 26%),
+          linear-gradient(145deg, #04011c 0%, #0e0161 46%, #273aba 100%);
       }
 
       a { color: inherit; text-decoration: none; }
@@ -179,81 +196,74 @@ export function renderLandingPageHtml(page) {
         position: relative;
         overflow: hidden;
         min-height: 100vh;
-        padding: 26px 18px 84px;
+        padding: 28px 18px 84px;
       }
 
-      .backdrop-layer {
+      .page-shell::before,
+      .page-shell::after {
+        content: "";
         position: absolute;
-        inset: 0;
+        border-radius: 50%;
+        filter: blur(30px);
         pointer-events: none;
-        overflow: hidden;
       }
 
-      .backdrop-word {
-        position: absolute;
-        font-family: "Sora", sans-serif;
-        font-size: clamp(5rem, 17vw, 13rem);
-        line-height: 0.82;
-        letter-spacing: -0.09em;
-        color: rgba(255,255,255,0.14);
-        text-transform: uppercase;
-        white-space: nowrap;
+      .page-shell::before {
+        width: 320px;
+        height: 320px;
+        top: 90px;
+        right: -80px;
+        background: rgba(186, 92, 177, 0.22);
       }
 
-      .word-1 {
-        top: 2%;
-        left: -4%;
+      .page-shell::after {
+        width: 280px;
+        height: 280px;
+        left: -100px;
+        bottom: 80px;
+        background: rgba(67, 147, 200, 0.16);
       }
 
-      .word-2 {
-        top: 22%;
-        right: -8%;
-      }
-
-      .word-3 {
-        top: 58%;
-        left: -3%;
-      }
-
-      .main-stack {
+      .stack {
         position: relative;
         z-index: 1;
         width: min(1220px, 100%);
         margin: 0 auto;
       }
 
-      .hero-panel,
-      .paper-panel,
-      .ink-panel {
+      .hero-stage,
+      .surface-light,
+      .surface-dark {
         border-radius: var(--radius-xl);
-        box-shadow: var(--shadow-lg);
         overflow: hidden;
       }
 
-      .hero-panel,
-      .paper-panel {
-        background: var(--paper-soft);
-        color: var(--ink);
-      }
-
-      .ink-panel {
-        background:
-          linear-gradient(180deg, rgba(16, 27, 60, 0.92), rgba(10, 19, 48, 0.96));
-        color: var(--paper);
-      }
-
-      .hero-panel {
+      .hero-stage {
         position: relative;
-        padding: 24px 24px 30px;
+        padding: 24px 24px 32px;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(177, 167, 239, 0.14), transparent 34%),
+          linear-gradient(160deg, rgba(14, 1, 97, 0.94), rgba(4, 1, 28, 0.96));
+        border: 1px solid var(--line-light);
+        box-shadow: var(--shadow-hero);
       }
 
-      .hero-panel::before {
-        content: "";
-        position: absolute;
-        inset: auto 0 0;
-        height: 200px;
-        background: linear-gradient(180deg, rgba(20,60,255,0), rgba(20,60,255,0.08));
-        pointer-events: none;
+      .surface-light {
+        margin-top: 24px;
+        padding: 30px;
+        background: linear-gradient(180deg, rgba(234, 231, 242, 0.98), rgba(255, 255, 255, 0.96));
+        color: var(--ink);
+        box-shadow: var(--shadow-card);
+      }
+
+      .surface-dark {
+        margin-top: 24px;
+        padding: 30px;
+        background:
+          radial-gradient(circle at 100% 0%, rgba(177, 167, 239, 0.12), transparent 30%),
+          linear-gradient(180deg, rgba(14, 1, 97, 0.94), rgba(4, 1, 28, 0.98));
+        border: 1px solid var(--line-light);
+        box-shadow: var(--shadow-hero);
       }
 
       .hero-nav {
@@ -261,7 +271,6 @@ export function renderLandingPageHtml(page) {
         grid-template-columns: auto 1fr auto;
         align-items: center;
         gap: 20px;
-        margin-bottom: 28px;
       }
 
       .brand-lockup {
@@ -274,8 +283,8 @@ export function renderLandingPageHtml(page) {
         width: 16px;
         height: 16px;
         border-radius: 50%;
-        background: linear-gradient(180deg, #1842ff, #6ca2ff);
-        box-shadow: 0 0 0 7px rgba(20, 60, 255, 0.08);
+        background: linear-gradient(180deg, #ffffff, #b1a7ef);
+        box-shadow: 0 0 0 8px rgba(234, 231, 242, 0.08);
       }
 
       .brand-lockup-text {
@@ -287,390 +296,427 @@ export function renderLandingPageHtml(page) {
 
       .hero-nav nav {
         display: flex;
-        align-items: center;
         justify-content: center;
         gap: 20px;
         flex-wrap: wrap;
-        color: var(--ink-soft);
+        color: var(--body);
         font-size: 14px;
       }
 
-      .hero-nav-cta {
+      .nav-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        padding: 12px 18px;
+        min-height: 46px;
+        padding: 0 18px;
         border-radius: 999px;
-        background: var(--royal);
-        color: #fff;
+        background: var(--lavender);
+        color: var(--ink);
         font-size: 14px;
         font-weight: 700;
       }
 
       .hero-grid {
-        position: relative;
-        z-index: 1;
         display: grid;
-        grid-template-columns: minmax(0, 0.9fr) minmax(320px, 0.95fr) minmax(0, 0.78fr);
-        gap: 24px;
+        grid-template-columns: minmax(0, 0.92fr) minmax(340px, 0.96fr);
+        gap: 28px;
         align-items: center;
+        margin-top: 34px;
+      }
+
+      .hero-copy {
+        max-width: 560px;
       }
 
       .eyebrow,
-      .section-tag {
-        margin: 0 0 12px;
+      .detail-kicker {
+        margin: 0 0 14px;
         font-size: 12px;
         font-weight: 800;
-        letter-spacing: 0.16em;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
       }
 
       .eyebrow {
-        color: rgba(14, 23, 41, 0.52);
+        color: rgba(234, 231, 242, 0.68);
       }
 
-      .section-tag {
-        color: rgba(255,255,255,0.62);
+      .surface-light .eyebrow {
+        color: rgba(4, 1, 28, 0.48);
       }
 
-      .hero-copy h1 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        font-size: clamp(2.8rem, 5.4vw, 5.4rem);
-        line-height: 0.92;
-        letter-spacing: -0.085em;
-        text-wrap: balance;
-      }
-
-      .hero-copy p {
-        margin: 16px 0 0;
-        color: var(--ink-soft);
-        font-size: 15px;
-        line-height: 1.68;
+      .detail-kicker {
+        color: rgba(4, 1, 28, 0.48);
       }
 
       .hero-copy .greeting {
-        margin-top: 0;
-        color: rgba(14, 23, 41, 0.62);
+        margin: 0 0 10px;
+        color: rgba(234, 231, 242, 0.74);
         font-size: 14px;
-        line-height: 1.6;
+        line-height: 1.65;
+      }
+
+      .hero-copy h1,
+      .section-header h2,
+      .cta-panel h2,
+      .recommendation-card h3,
+      .detail-card h3,
+      .story-card h3 {
+        margin: 0;
+        font-family: "Sora", sans-serif;
+        letter-spacing: -0.07em;
+      }
+
+      .hero-copy h1 {
+        font-size: clamp(3rem, 6vw, 5.7rem);
+        line-height: 0.92;
+        text-wrap: balance;
+      }
+
+      .hero-subhead {
+        margin: 18px 0 0;
+        color: var(--body);
+        font-size: 16px;
+        line-height: 1.72;
       }
 
       .hero-actions {
         display: flex;
         gap: 12px;
         flex-wrap: wrap;
-        margin-top: 24px;
+        margin-top: 26px;
       }
 
-      .primary-pill,
-      .secondary-pill {
+      .primary-button,
+      .secondary-button {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 48px;
+        min-height: 50px;
         padding: 0 20px;
         border-radius: 999px;
         font-size: 14px;
         font-weight: 700;
       }
 
-      .primary-pill {
-        background: var(--royal);
-        color: #fff;
-      }
-
-      .secondary-pill {
-        border: 1px solid var(--line-strong);
+      .primary-button {
+        background: linear-gradient(135deg, #eae7f2, #b1a7ef);
         color: var(--ink);
       }
 
-      .device-stage {
-        position: relative;
-        display: grid;
-        place-items: center;
-        min-height: 640px;
+      .secondary-button {
+        border: 1px solid rgba(234, 231, 242, 0.24);
+        color: var(--white);
       }
 
-      .device-halo {
-        position: absolute;
-        width: 76%;
-        aspect-ratio: 1;
-        border-radius: 50%;
-        background:
-          radial-gradient(circle, rgba(20,60,255,0.22), rgba(20,60,255,0.06) 42%, transparent 68%);
-        filter: blur(4px);
+      .hero-pill-row {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 26px;
       }
 
-      .device-chip {
-        position: absolute;
+      .hero-pill {
         display: inline-flex;
         align-items: center;
-        gap: 10px;
-        padding: 12px 14px;
+        min-height: 38px;
+        padding: 0 14px;
         border-radius: 999px;
-        background: rgba(255,255,255,0.96);
-        color: var(--ink);
+        background: rgba(234, 231, 242, 0.08);
+        border: 1px solid rgba(234, 231, 242, 0.1);
+        color: rgba(234, 231, 242, 0.88);
         font-size: 13px;
-        font-weight: 700;
-        box-shadow: var(--shadow-md);
+        font-weight: 600;
       }
 
-      .device-chip.top-left {
-        top: 16%;
-        left: 2%;
-      }
-
-      .device-chip.bottom-right {
-        right: 0;
-        bottom: 14%;
-      }
-
-      .device-chip::before {
-        content: "";
-        width: 9px;
-        height: 9px;
-        border-radius: 50%;
-        background: var(--accent);
-      }
-
-      .device-frame {
+      .hero-visual {
         position: relative;
-        width: min(340px, 84vw);
-        height: 640px;
-        padding: 14px;
-        border-radius: 42px;
-        background: #0d1733;
-        box-shadow:
-          0 28px 80px rgba(9, 21, 62, 0.26),
-          inset 0 0 0 1px rgba(255,255,255,0.08);
+        min-height: 620px;
       }
 
-      .device-notch {
+      .hero-visual::before,
+      .hero-visual::after {
+        content: "";
         position: absolute;
-        top: 12px;
-        left: 50%;
-        width: 124px;
-        height: 24px;
-        transform: translateX(-50%);
-        border-radius: 999px;
-        background: #101a38;
+        border-radius: 50%;
+        filter: blur(10px);
+      }
+
+      .hero-visual::before {
+        width: 240px;
+        height: 240px;
+        top: 10%;
+        right: 6%;
+        background: radial-gradient(circle, rgba(67, 147, 200, 0.38), transparent 72%);
+      }
+
+      .hero-visual::after {
+        width: 220px;
+        height: 220px;
+        left: 0;
+        bottom: 10%;
+        background: radial-gradient(circle, rgba(186, 92, 177, 0.34), transparent 72%);
+      }
+
+      .floating-card,
+      .dashboard-card {
+        backdrop-filter: blur(18px);
+      }
+
+      .floating-card {
+        position: absolute;
         z-index: 2;
-      }
-
-      .device-screen {
-        height: 100%;
-        border-radius: 30px;
-        overflow: hidden;
-        background:
-          linear-gradient(180deg, rgba(20,60,255,0.14), rgba(255,255,255,0)),
-          #ffffff;
-      }
-
-      .device-appbar {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        padding: 22px 20px 12px;
+        max-width: 210px;
+        padding: 16px 18px;
+        border-radius: 22px;
+        background: rgba(234, 231, 242, 0.96);
         color: var(--ink);
+        box-shadow: 0 20px 44px rgba(4, 1, 28, 0.18);
+        animation: float 7s ease-in-out infinite;
       }
 
-      .device-appbar strong {
-        font-family: "Sora", sans-serif;
-        font-size: 15px;
-      }
-
-      .device-hero {
-        padding: 10px 20px 20px;
-      }
-
-      .device-hero h2 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        font-size: 31px;
-        line-height: 0.96;
-        letter-spacing: -0.07em;
-        color: var(--ink);
-      }
-
-      .device-hero p {
-        margin: 12px 0 18px;
-        color: var(--ink-soft);
-        font-size: 13px;
-        line-height: 1.5;
-      }
-
-      .device-image {
-        height: 250px;
-        border-radius: 24px;
-        background:
-          linear-gradient(180deg, rgba(20,60,255,0.06), rgba(20,60,255,0.02)),
-          url("${escapeHtml(research.insightImage)}") center/cover no-repeat;
-      }
-
-      .device-cards {
-        display: grid;
-        gap: 12px;
-        padding: 0 20px 22px;
-      }
-
-      .device-card {
-        padding: 14px 16px;
-        border-radius: 20px;
-        background: #eef2ff;
-      }
-
-      .device-card strong {
+      .floating-card span {
         display: block;
-        margin-bottom: 6px;
-        color: var(--ink);
-        font-size: 13px;
+        margin-bottom: 8px;
+        color: rgba(4, 1, 28, 0.46);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
       }
 
-      .device-card span {
-        color: var(--ink-soft);
-        font-size: 12px;
+      .floating-card strong {
+        display: block;
+        font-size: 16px;
         line-height: 1.45;
       }
 
-      .hero-side {
-        display: grid;
-        gap: 16px;
+      .floating-card.top {
+        top: 20px;
+        right: 18px;
       }
 
-      .side-card {
-        padding: 18px;
-        border-radius: var(--radius-lg);
-        background: rgba(20, 60, 255, 0.06);
-        border: 1px solid var(--line);
+      .floating-card.bottom {
+        left: 6px;
+        bottom: 18px;
+        animation-delay: -3s;
       }
 
-      .side-card p,
-      .side-card li {
-        color: var(--ink-soft);
-      }
-
-      .side-card h3 {
-        margin: 0 0 10px;
-        font-family: "Sora", sans-serif;
-        font-size: 20px;
-        line-height: 1.04;
-        letter-spacing: -0.05em;
-      }
-
-      .signal-list,
-      .badge-grid,
-      .story-grid,
-      .recommendation-grid,
-      .detail-grid ul,
-      .footer-links {
-        margin: 0;
-        padding: 0;
-        list-style: none;
-      }
-
-      .signal-list {
-        display: grid;
-        gap: 10px;
-      }
-
-      .signal-list li {
-        padding-left: 18px;
+      .dashboard-card {
         position: relative;
-        font-size: 14px;
-        line-height: 1.55;
+        z-index: 1;
+        width: min(100%, 530px);
+        margin: 42px auto 0;
+        padding: 22px;
+        border-radius: 34px;
+        background: linear-gradient(180deg, rgba(234, 231, 242, 0.96), rgba(255, 255, 255, 0.98));
+        color: var(--ink);
+        box-shadow: 0 34px 80px rgba(4, 1, 28, 0.28);
       }
 
-      .signal-list li::before {
+      .dashboard-card::before {
         content: "";
         position: absolute;
-        top: 9px;
-        left: 0;
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: var(--royal);
+        inset: 14px;
+        border-radius: 26px;
+        border: 1px solid rgba(39, 58, 186, 0.08);
+        pointer-events: none;
       }
 
-      .recognition-row {
+      .dashboard-top {
         display: flex;
-        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
         gap: 12px;
-        margin-top: 22px;
+        margin-bottom: 22px;
       }
 
-      .recognition-chip {
+      .dashboard-top strong {
+        font-size: 14px;
+      }
+
+      .dashboard-chip {
         display: inline-flex;
         align-items: center;
-        min-height: 42px;
-        padding: 0 16px;
+        min-height: 34px;
+        padding: 0 12px;
         border-radius: 999px;
-        background: rgba(20, 60, 255, 0.08);
-        color: var(--ink);
-        font-size: 13px;
+        background: rgba(39, 58, 186, 0.08);
+        color: var(--brand-blue);
+        font-size: 12px;
         font-weight: 700;
       }
 
-      .stack-section {
-        margin-top: 24px;
+      .dashboard-balance {
+        padding: 24px;
+        border-radius: 26px;
+        background:
+          radial-gradient(circle at top right, rgba(177, 167, 239, 0.56), transparent 34%),
+          linear-gradient(145deg, #0e0161 0%, #273aba 70%, #4393c8 100%);
+        color: var(--white);
       }
 
-      .paper-panel,
-      .ink-panel {
-        padding: 28px;
+      .dashboard-balance p {
+        margin: 0;
+        color: rgba(234, 231, 242, 0.72);
+        font-size: 13px;
       }
 
-      .section-header {
+      .dashboard-balance strong {
+        display: block;
+        margin-top: 8px;
+        font-family: "Sora", sans-serif;
+        font-size: clamp(1.8rem, 4vw, 2.9rem);
+        line-height: 0.98;
+        letter-spacing: -0.06em;
+      }
+
+      .dashboard-balance span {
+        display: block;
+        margin-top: 12px;
+        color: rgba(234, 231, 242, 0.82);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .chart-strip {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+        align-items: end;
+        margin-top: 22px;
+        min-height: 138px;
+      }
+
+      .chart-bar {
+        border-radius: 18px 18px 10px 10px;
+        background: linear-gradient(180deg, rgba(234, 231, 242, 0.9), rgba(177, 167, 239, 0.4));
+      }
+
+      .chart-bar:nth-child(1) { height: 52px; }
+      .chart-bar:nth-child(2) { height: 88px; }
+      .chart-bar:nth-child(3) { height: 118px; }
+      .chart-bar:nth-child(4) { height: 96px; }
+      .chart-bar:nth-child(5) { height: 128px; background: linear-gradient(180deg, #ffffff, rgba(67, 147, 200, 0.44)); }
+
+      .dashboard-list {
+        display: grid;
+        gap: 12px;
+        margin-top: 20px;
+      }
+
+      .dashboard-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        padding: 14px 16px;
+        border-radius: 18px;
+        background: rgba(39, 58, 186, 0.05);
+      }
+
+      .dashboard-row-copy {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .dashboard-row-copy span {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: rgba(39, 58, 186, 0.08);
+        color: var(--brand-blue);
+        font-size: 12px;
+        font-weight: 800;
+      }
+
+      .dashboard-row-copy strong,
+      .dashboard-row em {
+        font-size: 13px;
+      }
+
+      .dashboard-row em {
+        font-style: normal;
+        color: rgba(4, 1, 28, 0.52);
+      }
+
+      .surface-light .section-header,
+      .surface-dark .section-header {
         display: grid;
         gap: 14px;
         margin-bottom: 22px;
       }
 
       .section-header h2 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        font-size: clamp(2rem, 4vw, 3.3rem);
+        font-size: clamp(2rem, 4.2vw, 3.35rem);
         line-height: 0.95;
-        letter-spacing: -0.075em;
         text-wrap: balance;
       }
 
-      .section-header p,
-      .section-copy,
-      .recommendation-card p,
-      .detail-card li,
-      .story-card p,
-      .cta-panel p,
-      .footer-meta {
-        color: inherit;
-        opacity: 0.72;
+      .surface-light .section-header p,
+      .surface-light .section-copy,
+      .surface-light .story-card p,
+      .surface-light .recommendation-card p,
+      .surface-light .detail-grid li,
+      .surface-light .footer-meta {
+        color: var(--body-dark);
       }
 
-      .split-section {
+      .surface-dark .section-header p,
+      .surface-dark .recommendation-card p,
+      .surface-dark .badge-grid li,
+      .surface-dark .cta-panel p,
+      .surface-dark .footer-meta {
+        color: rgba(234, 231, 242, 0.72);
+      }
+
+      .understanding-grid {
         display: grid;
         grid-template-columns: minmax(0, 1.05fr) minmax(320px, 0.95fr);
         gap: 24px;
         align-items: center;
       }
 
-      .insight-visual {
-        min-height: 420px;
-        border-radius: calc(var(--radius-lg) + 6px);
-        background:
-          linear-gradient(180deg, rgba(20,60,255,0.1), rgba(20,60,255,0.02)),
-          url("${escapeHtml(research.insightImage)}") center/cover no-repeat;
-        box-shadow: var(--shadow-md);
-      }
-
-      .insight-copy {
+      .insight-column {
         display: grid;
         gap: 16px;
       }
 
-      .evidence-box {
+      .signal-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .signal-card {
         padding: 18px 20px;
         border-radius: var(--radius-md);
-        background: var(--royal-soft);
+        background: rgba(39, 58, 186, 0.06);
+      }
+
+      .signal-card span {
+        display: block;
+        margin-bottom: 8px;
+        color: rgba(4, 1, 28, 0.46);
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .signal-card strong {
+        display: block;
+        font-size: 15px;
+        line-height: 1.55;
+      }
+
+      .evidence-box {
+        padding: 20px 22px;
+        border-radius: var(--radius-md);
+        background: rgba(177, 167, 239, 0.16);
       }
 
       .evidence-box ul,
@@ -679,13 +725,27 @@ export function renderLandingPageHtml(page) {
         padding-left: 18px;
       }
 
+      .evidence-box li,
+      .detail-grid li {
+        line-height: 1.68;
+      }
+
       .framing-box {
-        padding: 20px 22px;
+        padding: 22px 24px;
         border-radius: var(--radius-md);
-        background: var(--royal);
-        color: #fff;
+        background: linear-gradient(135deg, #273aba, #ba5cb1);
+        color: var(--white);
         font-size: 15px;
-        line-height: 1.6;
+        line-height: 1.68;
+      }
+
+      .insight-visual {
+        min-height: 420px;
+        border-radius: var(--radius-lg);
+        background:
+          linear-gradient(180deg, rgba(14, 1, 97, 0.12), rgba(14, 1, 97, 0.02)),
+          url("${escapeHtml(research.insightImage)}") center/cover no-repeat;
+        box-shadow: var(--shadow-card);
       }
 
       .recommendation-grid {
@@ -697,32 +757,32 @@ export function renderLandingPageHtml(page) {
       .recommendation-card {
         padding: 24px;
         border-radius: var(--radius-lg);
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(234, 231, 242, 0.08);
+        border: 1px solid rgba(234, 231, 242, 0.12);
       }
 
-      .card-index,
-      .story-index {
+      .surface-light .recommendation-card {
+        background: rgba(39, 58, 186, 0.05);
+        border-color: rgba(39, 58, 186, 0.08);
+      }
+
+      .card-index {
         margin: 0 0 14px;
-        color: rgba(255,255,255,0.58);
+        color: rgba(234, 231, 242, 0.58);
         font-size: 13px;
         font-weight: 700;
         letter-spacing: 0.12em;
         text-transform: uppercase;
       }
 
-      .recommendation-card h3,
-      .detail-card h3,
-      .story-card h3,
-      .cta-panel h2 {
-        margin: 0;
-        font-family: "Sora", sans-serif;
-        line-height: 0.98;
-        letter-spacing: -0.06em;
+      .surface-light .card-index,
+      .surface-light .story-card .card-index {
+        color: rgba(4, 1, 28, 0.42);
       }
 
       .recommendation-card h3 {
         font-size: 28px;
+        line-height: 1;
       }
 
       .detail-stack {
@@ -733,11 +793,10 @@ export function renderLandingPageHtml(page) {
       .detail-card {
         padding: 24px;
         border-radius: var(--radius-lg);
-        background: rgba(255,255,255,0.96);
-        color: var(--ink);
+        background: rgba(39, 58, 186, 0.05);
       }
 
-      .detail-card-top {
+      .detail-card-header {
         display: flex;
         align-items: end;
         justify-content: space-between;
@@ -747,17 +806,19 @@ export function renderLandingPageHtml(page) {
 
       .detail-card h3 {
         font-size: 30px;
+        line-height: 0.98;
+        color: var(--ink);
       }
 
       .timeline-pill {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        min-height: 42px;
-        padding: 0 16px;
+        min-height: 40px;
+        padding: 0 15px;
         border-radius: 999px;
-        background: rgba(20, 60, 255, 0.09);
-        color: var(--royal);
+        background: rgba(39, 58, 186, 0.1);
+        color: var(--brand-blue);
         font-size: 13px;
         font-weight: 700;
       }
@@ -771,13 +832,21 @@ export function renderLandingPageHtml(page) {
       .detail-grid section {
         padding: 18px;
         border-radius: var(--radius-md);
-        background: #f1f4ff;
+        background: rgba(255, 255, 255, 0.62);
       }
 
       .detail-grid h4 {
         margin: 0;
         font-size: 15px;
         color: var(--ink);
+      }
+
+      .badge-grid,
+      .story-grid,
+      .footer-links {
+        list-style: none;
+        margin: 0;
+        padding: 0;
       }
 
       .badge-grid {
@@ -789,10 +858,10 @@ export function renderLandingPageHtml(page) {
       .badge-grid li {
         padding: 20px;
         border-radius: var(--radius-md);
-        background: rgba(255,255,255,0.08);
-        border: 1px solid rgba(255,255,255,0.12);
+        background: rgba(234, 231, 242, 0.08);
+        border: 1px solid rgba(234, 231, 242, 0.1);
         font-size: 15px;
-        line-height: 1.45;
+        line-height: 1.5;
       }
 
       .story-grid {
@@ -804,17 +873,13 @@ export function renderLandingPageHtml(page) {
       .story-card {
         padding: 24px;
         border-radius: var(--radius-lg);
-        background: var(--paper-soft);
-        color: var(--ink);
-      }
-
-      .story-card .story-index,
-      .story-card p {
-        color: var(--ink-soft);
+        background: rgba(39, 58, 186, 0.05);
       }
 
       .story-card h3 {
         font-size: 28px;
+        line-height: 1;
+        color: var(--ink);
       }
 
       .cta-panel {
@@ -825,7 +890,9 @@ export function renderLandingPageHtml(page) {
       }
 
       .cta-panel h2 {
-        font-size: clamp(2rem, 4vw, 3.4rem);
+        font-size: clamp(2rem, 4.2vw, 3.35rem);
+        line-height: 0.95;
+        text-wrap: balance;
       }
 
       .footer {
@@ -834,9 +901,9 @@ export function renderLandingPageHtml(page) {
         justify-content: space-between;
         gap: 18px;
         flex-wrap: wrap;
-        margin-top: 20px;
-        padding-top: 20px;
-        border-top: 1px solid rgba(255,255,255,0.12);
+        margin-top: 22px;
+        padding-top: 22px;
+        border-top: 1px solid rgba(234, 231, 242, 0.12);
       }
 
       .footer-meta {
@@ -846,13 +913,22 @@ export function renderLandingPageHtml(page) {
 
       .footer-links {
         display: flex;
-        flex-wrap: wrap;
         gap: 14px;
+        flex-wrap: wrap;
+      }
+
+      @keyframes float {
+        0%, 100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
       }
 
       @media (max-width: 1100px) {
         .hero-grid,
-        .split-section,
+        .understanding-grid,
         .recommendation-grid,
         .detail-grid,
         .badge-grid,
@@ -870,102 +946,67 @@ export function renderLandingPageHtml(page) {
           justify-content: flex-start;
         }
 
-        .device-stage {
+        .hero-visual {
           min-height: auto;
-          padding: 8px 0;
         }
 
-        .detail-card-top {
+        .detail-card-header {
           align-items: start;
           flex-direction: column;
-        }
-
-        .badge-grid,
-        .story-grid,
-        .recommendation-grid {
-          gap: 14px;
         }
       }
 
       @media (max-width: 760px) {
         .page-shell {
-          padding: 14px 12px 54px;
+          padding: 16px 12px 56px;
         }
 
-        .hero-panel,
-        .paper-panel,
-        .ink-panel {
+        .hero-stage,
+        .surface-light,
+        .surface-dark {
           border-radius: 28px;
         }
 
-        .hero-panel,
-        .paper-panel,
-        .ink-panel {
+        .hero-stage,
+        .surface-light,
+        .surface-dark {
           padding: 18px;
         }
 
         .hero-copy h1 {
-          font-size: clamp(2.25rem, 10vw, 3.8rem);
+          font-size: clamp(2.35rem, 10vw, 4rem);
         }
 
-        .device-frame {
-          width: min(100%, 320px);
-          height: 600px;
+        .dashboard-card {
+          padding: 18px;
         }
 
-        .device-chip.top-left,
-        .device-chip.bottom-right {
+        .floating-card {
           position: static;
-          margin-top: 10px;
+          max-width: none;
+          margin-top: 12px;
         }
 
-        .device-stage {
-          justify-items: stretch;
-        }
-
-        .device-chip {
-          justify-content: center;
-        }
-
-        .backdrop-word {
-          font-size: clamp(4rem, 22vw, 7rem);
-        }
-
-        .word-1 {
-          top: 5%;
-          left: -10%;
-        }
-
-        .word-2 {
-          top: 34%;
-          right: -16%;
-        }
-
-        .word-3 {
-          top: 70%;
-          left: -12%;
+        .dashboard-card {
+          margin-top: 18px;
         }
       }
     </style>
   </head>
   <body>
     <div class="page-shell">
-      <div class="backdrop-layer" aria-hidden="true">
-        ${renderBackdropWords(page)}
-      </div>
-
-      <div class="main-stack">
-        <section class="hero-panel">
+      <div class="stack">
+        <section class="hero-stage">
           <header class="hero-nav">
             ${renderWordmark()}
             <nav aria-label="Primary">
               <a href="#understanding">Understanding</a>
               <a href="#recommendations">Recommendations</a>
-              <a href="#details">Service Detail</a>
+              <a href="#details">Services</a>
               <a href="#stories">Stories</a>
               <a href="#contact">Contact</a>
             </nav>
-            <a class="hero-nav-cta" href="#contact">Book a Demo</a>
+            <a class="nav-button" href="#contact">Book a Demo</a>
           </header>
 
           <div class="hero-grid">
@@ -973,128 +1014,136 @@ export function renderLandingPageHtml(page) {
               <p class="eyebrow">Personalized ABM Page</p>
               <p class="greeting">${escapeHtml(greeting)}</p>
               <h1>${escapeHtml(research.heroTitle)}</h1>
-              <p>${escapeHtml(research.subhead)}</p>
+              <p class="hero-subhead">${escapeHtml(research.subhead)}</p>
               <div class="hero-actions">
-                <a class="primary-pill" href="#contact">Start the Conversation</a>
-                <a class="secondary-pill" href="#recommendations">View Recommendations</a>
+                <a class="primary-button" href="#contact">Start the Conversation</a>
+                <a class="secondary-button" href="#recommendations">Explore Recommendations</a>
               </div>
-              <div class="recognition-row">
-                ${renderRecognitionChips(brand, services)}
+              <div class="hero-pill-row">
+                ${renderHeroPills(brand, services, research)}
               </div>
             </section>
 
-            <section class="device-stage" aria-label="Spot.AI mobile preview">
-              <span class="device-chip top-left">${escapeHtml(services[0]?.name || "AI Strategy")}</span>
-              <div class="device-halo"></div>
-              <div class="device-frame">
-                <div class="device-notch"></div>
-                <div class="device-screen">
-                  <div class="device-appbar">
-                    <strong>${escapeHtml(research.companyName)}</strong>
-                    <span>${escapeHtml(brand.location)}</span>
-                  </div>
-                  <div class="device-hero">
-                    <h2>${escapeHtml(research.companyName)}</h2>
-                    <p>${escapeHtml(research.summary)}</p>
-                    <div class="device-image"></div>
-                  </div>
-                  <div class="device-cards">
-                    <div class="device-card">
-                      <strong>Primary Pressure</strong>
-                      <span>${escapeHtml(research.pressures[0] || "Modernization speed and clarity.")}</span>
-                    </div>
-                    <div class="device-card">
-                      <strong>Recommended Start</strong>
-                      <span>${escapeHtml(services[0]?.cardTitle || "ABM discovery and planning.")}</span>
-                    </div>
+            <section class="hero-visual" aria-label="Fintech-inspired Spot.AI preview">
+              <div class="floating-card top">
+                <span>Signal</span>
+                <strong>${escapeHtml(primaryPressure)}</strong>
+              </div>
+
+              <article class="dashboard-card">
+                <div class="dashboard-top">
+                  <strong>${escapeHtml(research.companyName)}</strong>
+                  <span class="dashboard-chip">${escapeHtml(industryLabel)}</span>
+                </div>
+
+                <div class="dashboard-balance">
+                  <p>ABM opportunity profile</p>
+                  <strong>${escapeHtml(services[0]?.cardTitle || "Priority Program")}</strong>
+                  <span>${escapeHtml(recommendationIntro)}</span>
+                  <div class="chart-strip" aria-hidden="true">
+                    <span class="chart-bar"></span>
+                    <span class="chart-bar"></span>
+                    <span class="chart-bar"></span>
+                    <span class="chart-bar"></span>
+                    <span class="chart-bar"></span>
                   </div>
                 </div>
-              </div>
-              <span class="device-chip bottom-right">${escapeHtml(services[1]?.name || "Cloud + AI")}</span>
-            </section>
 
-            <aside class="hero-side">
-              <div class="side-card">
-                <p class="eyebrow">Why This Account</p>
-                <h3>Signals worth acting on</h3>
-                <ul class="signal-list">${renderList(heroSignals)}</ul>
+                <div class="dashboard-list">
+                  ${renderDashboardServiceRows(services)}
+                </div>
+              </article>
+
+              <div class="floating-card bottom">
+                <span>Momentum</span>
+                <strong>${escapeHtml((research.evidence?.[0] || research.pressures?.[1] || "High-fit account for a focused modernization conversation."))}</strong>
               </div>
-              <div class="side-card">
-                <p class="eyebrow">Recognition</p>
-                <h3>Why Spot.AI feels credible here</h3>
-                <p>${escapeHtml(recognition)}</p>
-              </div>
-            </aside>
+            </section>
           </div>
         </section>
 
-        <section id="understanding" class="paper-panel stack-section">
+        <section id="understanding" class="surface-light">
           <div class="section-header">
             <p class="eyebrow">Our Understanding of ${escapeHtml(research.companyName)}</p>
-            <h2>What we see across ${escapeHtml(research.industryLabel.toLowerCase())} teams right now</h2>
+            <h2>${escapeHtml(understandingTitle)}</h2>
             <p>${escapeHtml(research.summary)}</p>
           </div>
 
-          <div class="split-section">
-            <div class="insight-copy">
-              <div class="evidence-box">
-                <p class="eyebrow">Operating pressures</p>
-                <ul>${renderList(research.pressures)}</ul>
+          <div class="understanding-grid">
+            <div class="insight-column">
+              <div class="signal-grid">
+                ${renderHeroSignals(heroSignals)}
               </div>
+
               ${research.evidence?.length ? `
                 <div class="evidence-box">
                   <p class="eyebrow">Signals from the site</p>
                   <ul>${renderList(research.evidence)}</ul>
                 </div>
               ` : ""}
+
               <div class="framing-box">${escapeHtml(research.framing)}</div>
             </div>
+
             <div class="insight-visual"></div>
           </div>
         </section>
 
-        <section id="recommendations" class="ink-panel stack-section">
+        <section id="recommendations" class="surface-dark">
           <div class="section-header">
-            <p class="section-tag">Our Recommendation</p>
+            <p class="eyebrow">Our Recommendation</p>
             <h2>Priority initiatives for ${escapeHtml(research.companyName)}</h2>
             <p>${escapeHtml(recommendationIntro)}</p>
           </div>
-          <div class="recommendation-grid">${renderRecommendationCards(services)}</div>
+
+          <div class="recommendation-grid">
+            ${renderRecommendationCards(services)}
+          </div>
         </section>
 
-        <section id="details" class="paper-panel stack-section">
+        <section id="details" class="surface-light">
           <div class="section-header">
             <p class="eyebrow">Service Detail</p>
             <h2>How Spot.AI would shape the work</h2>
           </div>
-          <div class="detail-stack">${renderServiceDetails(services)}</div>
-        </section>
 
-        <section class="ink-panel stack-section">
-          <div class="section-header">
-            <p class="section-tag">Why Spot.AI</p>
-            <h2>Built for modern teams that want sharp thinking and practical delivery</h2>
-            <p>${escapeHtml(brand.footerBlurb)}</p>
+          <div class="detail-stack">
+            ${renderServiceDetails(services)}
           </div>
-          <ul class="badge-grid">${renderTrustBadges(trustBadges)}</ul>
         </section>
 
-        <section id="stories" class="paper-panel stack-section">
+        <section class="surface-dark">
+          <div class="section-header">
+            <p class="eyebrow">Why Spot.AI</p>
+            <h2>Built for modern teams that want strategic clarity and practical delivery</h2>
+            <p>${escapeHtml(recognition)}</p>
+          </div>
+
+          <ul class="badge-grid">
+            ${renderTrustBadges(trustBadges)}
+          </ul>
+        </section>
+
+        <section id="stories" class="surface-light">
           <div class="section-header">
             <p class="eyebrow">Success Stories</p>
-            <h2>Examples aligned to the same operating pressures</h2>
+            <h2>Relevant examples for the same operating pressures</h2>
+            <p>These examples show the kinds of outcomes Spot.AI is built to support when visibility, modernization, and execution need to move together.</p>
           </div>
-          <div class="story-grid">${renderCaseStudies(research.caseStudies)}</div>
+
+          <div class="story-grid">
+            ${renderCaseStudies(research.caseStudies)}
+          </div>
         </section>
 
-        <section id="contact" class="ink-panel stack-section">
+        <section id="contact" class="surface-dark">
           <div class="cta-panel">
             <div>
-              <p class="section-tag">Let's Start the Conversation</p>
+              <p class="eyebrow">Let's Start the Conversation</p>
               <h2>${escapeHtml(ctaText)}</h2>
               <p>${escapeHtml(ctaSubtext)}</p>
             </div>
-            <a class="primary-pill" href="#contact">Book Intro Call</a>
+            <a class="nav-button" href="#contact">Book Intro Call</a>
           </div>
 
           <footer class="footer">
@@ -1102,6 +1151,7 @@ export function renderLandingPageHtml(page) {
               ${renderWordmark()}
               <span>${escapeHtml(brand.footerBlurb)}</span>
             </div>
+
             <div class="footer-links">
               ${brand.footerLinks.map((link) => `<a href="${escapeHtml(link.href)}">${escapeHtml(link.label)}</a>`).join("")}
             </div>
