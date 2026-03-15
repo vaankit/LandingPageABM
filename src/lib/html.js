@@ -17,10 +17,10 @@ function renderList(items, className = "") {
 
 function serviceTitleFragment(service) {
   const byId = {
-    erp: "modernize operations",
-    cloud: "upgrade platforms",
+    erp: "modernize finance",
+    cloud: "upgrade cloud",
     "ai-data": "activate data",
-    "app-modernization": "renew applications",
+    "app-modernization": "renew apps",
     security: "govern risk",
     "digital-experience": "elevate journeys"
   };
@@ -32,30 +32,37 @@ function capitalizePhrase(value) {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function buildHeroDisplayTitle(services, companyName) {
+function buildHeroDisplayLines(services) {
   const fragments = services.slice(0, 3).map(serviceTitleFragment);
 
   if (fragments.length === 0) {
-    return "Modernize<br />delivery";
+    return ["Modernize", "delivery"];
   }
 
   const lines = [];
   const [first, second, third] = fragments;
 
   if (first) {
-    lines.push(`${capitalizePhrase(first)}${second || third ? "," : ""}`);
+    lines.push(capitalizePhrase(first));
   }
   if (second) {
-    lines.push(`${second}${third ? "," : ""}`);
+    lines.push(second);
   }
   if (third) {
-    lines.push(`and ${third}`);
-  }
-  if (companyName) {
-    lines.push(`for ${companyName}`);
+    lines.push(third);
   }
 
-  return lines.map((line) => escapeHtml(line)).join("<br />");
+  if (lines.length < 3) {
+    lines.push("with clarity");
+  }
+
+  return lines.slice(0, 3);
+}
+
+function renderHeroDisplayTitle(lines) {
+  return lines
+    .map((line) => `<span>${escapeHtml(line)}</span>`)
+    .join("");
 }
 
 function buildHeroLead(research) {
@@ -183,7 +190,8 @@ export function renderLandingPageHtml(page) {
   const primaryPressure = research.pressures[0] || "Modernization momentum is rising across the account.";
   const industryLabel = research.industryLabel || "Industry";
   const understandingTitle = `What we see across ${industryLabel.toLowerCase()} teams right now`;
-  const heroDisplayTitle = buildHeroDisplayTitle(services, research.companyName);
+  const heroDisplayLines = buildHeroDisplayLines(services);
+  const heroDisplayTitle = renderHeroDisplayTitle(heroDisplayLines);
   const heroLead = buildHeroLead(research);
   const dashboardBlurb = buildDashboardBlurb(research);
 
@@ -415,9 +423,14 @@ export function renderLandingPageHtml(page) {
       }
 
       .hero-copy h1 {
-        max-width: 7.2ch;
+        max-width: none;
         font-size: clamp(4.3rem, 8vw, 7.9rem);
         line-height: 0.88;
+      }
+
+      .hero-copy h1 span {
+        display: block;
+        white-space: nowrap;
       }
 
       .hero-subhead {
@@ -972,8 +985,11 @@ export function renderLandingPageHtml(page) {
         }
 
         .hero-copy h1 {
-          max-width: 100%;
           font-size: clamp(2.8rem, 12vw, 4.8rem);
+        }
+
+        .hero-copy h1 span {
+          white-space: normal;
         }
 
         .floating-card {
