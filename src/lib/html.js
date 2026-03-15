@@ -15,17 +15,58 @@ function renderList(items, className = "") {
     .join("");
 }
 
-function renderHeroPills(brand, services, research) {
-  const pills = [
-    brand.location,
-    research.industryLabel,
-    services[0]?.name,
-    "ABM Experience"
-  ].filter(Boolean);
+function serviceTitleFragment(service) {
+  const byId = {
+    erp: "modernize operations",
+    cloud: "upgrade platforms",
+    "ai-data": "activate data",
+    "app-modernization": "renew applications",
+    security: "govern risk",
+    "digital-experience": "elevate journeys"
+  };
 
-  return pills
-    .map((pill) => `<span class="hero-pill">${escapeHtml(pill)}</span>`)
-    .join("");
+  return byId[service?.id] || (service?.name ? service.name.toLowerCase() : "modern delivery");
+}
+
+function capitalizePhrase(value) {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function buildHeroDisplayTitle(services, companyName) {
+  const fragments = services.slice(0, 3).map(serviceTitleFragment);
+
+  if (fragments.length === 0) {
+    return "Modernize<br />delivery";
+  }
+
+  const lines = [];
+  const [first, second, third] = fragments;
+
+  if (first) {
+    lines.push(`${capitalizePhrase(first)}${second || third ? "," : ""}`);
+  }
+  if (second) {
+    lines.push(`${second}${third ? "," : ""}`);
+  }
+  if (third) {
+    lines.push(`and ${third}`);
+  }
+  if (companyName) {
+    lines.push(`for ${companyName}`);
+  }
+
+  return lines.map((line) => escapeHtml(line)).join("<br />");
+}
+
+function buildHeroLead(research) {
+  const companyName = research.companyName || "This account";
+  const industryLabel = (research.industryLabel || "the market").toLowerCase();
+  return `${companyName} is balancing ${industryLabel} modernization, reporting clarity, and operational control.`;
+}
+
+function buildDashboardBlurb(research) {
+  const pressure = research.pressures?.[0] || "Modernization priorities are visible across the current footprint.";
+  return pressure.length > 110 ? `${pressure.slice(0, 107)}...` : pressure;
 }
 
 function renderRecommendationCards(services) {
@@ -142,6 +183,9 @@ export function renderLandingPageHtml(page) {
   const primaryPressure = research.pressures[0] || "Modernization momentum is rising across the account.";
   const industryLabel = research.industryLabel || "Industry";
   const understandingTitle = `What we see across ${industryLabel.toLowerCase()} teams right now`;
+  const heroDisplayTitle = buildHeroDisplayTitle(services, research.companyName);
+  const heroLead = buildHeroLead(research);
+  const dashboardBlurb = buildDashboardBlurb(research);
 
   return `<!doctype html>
 <html lang="en">
@@ -240,7 +284,8 @@ export function renderLandingPageHtml(page) {
 
       .hero-stage {
         position: relative;
-        padding: 24px 24px 32px;
+        min-height: 980px;
+        padding: 24px 24px 36px;
         background:
           radial-gradient(circle at 100% 0%, rgba(177, 167, 239, 0.14), transparent 34%),
           linear-gradient(160deg, rgba(14, 1, 97, 0.94), rgba(4, 1, 28, 0.96));
@@ -318,14 +363,15 @@ export function renderLandingPageHtml(page) {
 
       .hero-grid {
         display: grid;
-        grid-template-columns: minmax(0, 0.92fr) minmax(340px, 0.96fr);
-        gap: 28px;
-        align-items: center;
-        margin-top: 34px;
+        grid-template-columns: minmax(0, 0.98fr) minmax(480px, 0.92fr);
+        gap: 10px;
+        align-items: start;
+        margin-top: 56px;
       }
 
       .hero-copy {
-        max-width: 560px;
+        max-width: 760px;
+        padding-top: 54px;
       }
 
       .eyebrow,
@@ -350,10 +396,11 @@ export function renderLandingPageHtml(page) {
       }
 
       .hero-copy .greeting {
-        margin: 0 0 10px;
+        max-width: 760px;
+        margin: 0 0 24px;
         color: rgba(234, 231, 242, 0.74);
-        font-size: 14px;
-        line-height: 1.65;
+        font-size: 15px;
+        line-height: 1.6;
       }
 
       .hero-copy h1,
@@ -368,70 +415,18 @@ export function renderLandingPageHtml(page) {
       }
 
       .hero-copy h1 {
-        font-size: clamp(3rem, 6vw, 5.7rem);
-        line-height: 0.92;
-        text-wrap: balance;
+        max-width: 7.2ch;
+        font-size: clamp(4.3rem, 8vw, 7.9rem);
+        line-height: 0.88;
       }
 
       .hero-subhead {
-        margin: 18px 0 0;
-        color: var(--body);
-        font-size: 16px;
-        line-height: 1.72;
-      }
-
-      .hero-actions {
-        display: flex;
-        gap: 12px;
-        flex-wrap: wrap;
-        margin-top: 26px;
-      }
-
-      .primary-button,
-      .secondary-button {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        min-height: 50px;
-        padding: 0 20px;
-        border-radius: 999px;
-        font-size: 14px;
-        font-weight: 700;
-      }
-
-      .primary-button {
-        background: linear-gradient(135deg, #eae7f2, #b1a7ef);
-        color: var(--ink);
-      }
-
-      .secondary-button {
-        border: 1px solid rgba(234, 231, 242, 0.24);
-        color: var(--white);
-      }
-
-      .hero-pill-row {
-        display: flex;
-        gap: 10px;
-        flex-wrap: wrap;
-        margin-top: 26px;
-      }
-
-      .hero-pill {
-        display: inline-flex;
-        align-items: center;
-        min-height: 38px;
-        padding: 0 14px;
-        border-radius: 999px;
-        background: rgba(234, 231, 242, 0.08);
-        border: 1px solid rgba(234, 231, 242, 0.1);
-        color: rgba(234, 231, 242, 0.88);
-        font-size: 13px;
-        font-weight: 600;
+        display: none;
       }
 
       .hero-visual {
         position: relative;
-        min-height: 620px;
+        min-height: 820px;
       }
 
       .hero-visual::before,
@@ -492,23 +487,24 @@ export function renderLandingPageHtml(page) {
       }
 
       .floating-card.top {
-        top: 20px;
-        right: 18px;
+        top: 146px;
+        right: 0;
+        max-width: 300px;
       }
 
       .floating-card.bottom {
-        left: 6px;
-        bottom: 18px;
+        left: 0;
+        bottom: 40px;
         animation-delay: -3s;
       }
 
       .dashboard-card {
         position: relative;
         z-index: 1;
-        width: min(100%, 530px);
-        margin: 42px auto 0;
+        width: min(100%, 620px);
+        margin: 188px 0 0 auto;
         padding: 22px;
-        border-radius: 34px;
+        border-radius: 40px;
         background: linear-gradient(180deg, rgba(234, 231, 242, 0.96), rgba(255, 255, 255, 0.98));
         color: var(--ink);
         box-shadow: 0 34px 80px rgba(4, 1, 28, 0.28);
@@ -548,8 +544,8 @@ export function renderLandingPageHtml(page) {
       }
 
       .dashboard-balance {
-        padding: 24px;
-        border-radius: 26px;
+        padding: 28px;
+        border-radius: 30px;
         background:
           radial-gradient(circle at top right, rgba(177, 167, 239, 0.56), transparent 34%),
           linear-gradient(145deg, #0e0161 0%, #273aba 70%, #4393c8 100%);
@@ -564,9 +560,10 @@ export function renderLandingPageHtml(page) {
 
       .dashboard-balance strong {
         display: block;
-        margin-top: 8px;
+        max-width: 9ch;
+        margin-top: 12px;
         font-family: "Sora", sans-serif;
-        font-size: clamp(1.8rem, 4vw, 2.9rem);
+        font-size: clamp(3rem, 4.9vw, 4.5rem);
         line-height: 0.98;
         letter-spacing: -0.06em;
       }
@@ -574,8 +571,9 @@ export function renderLandingPageHtml(page) {
       .dashboard-balance span {
         display: block;
         margin-top: 12px;
+        max-width: 30ch;
         color: rgba(234, 231, 242, 0.82);
-        font-size: 14px;
+        font-size: 15px;
         line-height: 1.6;
       }
 
@@ -974,11 +972,8 @@ export function renderLandingPageHtml(page) {
         }
 
         .hero-copy h1 {
-          font-size: clamp(2.35rem, 10vw, 4rem);
-        }
-
-        .dashboard-card {
-          padding: 18px;
+          max-width: 100%;
+          font-size: clamp(2.8rem, 12vw, 4.8rem);
         }
 
         .floating-card {
@@ -988,7 +983,9 @@ export function renderLandingPageHtml(page) {
         }
 
         .dashboard-card {
+          width: 100%;
           margin-top: 18px;
+          padding: 18px;
         }
       }
     </style>
@@ -1012,16 +1009,8 @@ export function renderLandingPageHtml(page) {
           <div class="hero-grid">
             <section class="hero-copy">
               <p class="eyebrow">Personalized ABM Page</p>
-              <p class="greeting">${escapeHtml(greeting)}</p>
-              <h1>${escapeHtml(research.heroTitle)}</h1>
-              <p class="hero-subhead">${escapeHtml(research.subhead)}</p>
-              <div class="hero-actions">
-                <a class="primary-button" href="#contact">Start the Conversation</a>
-                <a class="secondary-button" href="#recommendations">Explore Recommendations</a>
-              </div>
-              <div class="hero-pill-row">
-                ${renderHeroPills(brand, services, research)}
-              </div>
+              <p class="greeting">${escapeHtml(heroLead)}</p>
+              <h1>${heroDisplayTitle}</h1>
             </section>
 
             <section class="hero-visual" aria-label="Fintech-inspired Spot.AI preview">
@@ -1039,7 +1028,7 @@ export function renderLandingPageHtml(page) {
                 <div class="dashboard-balance">
                   <p>ABM opportunity profile</p>
                   <strong>${escapeHtml(services[0]?.cardTitle || "Priority Program")}</strong>
-                  <span>${escapeHtml(recommendationIntro)}</span>
+                  <span>${escapeHtml(dashboardBlurb)}</span>
                   <div class="chart-strip" aria-hidden="true">
                     <span class="chart-bar"></span>
                     <span class="chart-bar"></span>
