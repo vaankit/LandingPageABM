@@ -17,46 +17,19 @@ function renderList(items, className = "") {
 
 function serviceTitleFragment(service) {
   const byId = {
-    erp: "modernize finance",
-    cloud: "upgrade cloud",
-    "ai-data": "activate data",
-    "app-modernization": "renew apps",
-    security: "govern risk",
-    "digital-experience": "elevate journeys"
+    erp: ["Modernize", "finance", "with control"],
+    cloud: ["Upgrade", "cloud", "with confidence"],
+    "ai-data": ["Activate", "data", "with clarity"],
+    "app-modernization": ["Renew", "apps", "with speed"],
+    security: ["Govern", "risk", "with confidence"],
+    "digital-experience": ["Elevate", "journeys", "with clarity"]
   };
 
-  return byId[service?.id] || (service?.name ? service.name.toLowerCase() : "modern delivery");
-}
-
-function capitalizePhrase(value) {
-  return value.charAt(0).toUpperCase() + value.slice(1);
+  return byId[service?.id] || ["Modernize", "delivery with", "clarity"];
 }
 
 function buildHeroDisplayLines(services) {
-  const fragments = services.slice(0, 3).map(serviceTitleFragment);
-
-  if (fragments.length === 0) {
-    return ["Modernize", "delivery"];
-  }
-
-  const lines = [];
-  const [first, second, third] = fragments;
-
-  if (first) {
-    lines.push(capitalizePhrase(first));
-  }
-  if (second) {
-    lines.push(second);
-  }
-  if (third) {
-    lines.push(third);
-  }
-
-  if (lines.length < 3) {
-    lines.push("with clarity");
-  }
-
-  return lines.slice(0, 3);
+  return serviceTitleFragment(services[0]);
 }
 
 function renderHeroDisplayTitle(lines) {
@@ -67,13 +40,25 @@ function renderHeroDisplayTitle(lines) {
 
 function buildHeroLead(research) {
   const companyName = research.companyName || "This account";
-  const industryLabel = (research.industryLabel || "the market").toLowerCase();
-  return `${companyName} is balancing ${industryLabel} modernization, reporting clarity, and operational control.`;
+  return `${companyName} is balancing growth priorities, reporting clarity, and operational control.`;
 }
 
 function buildDashboardBlurb(research) {
   const pressure = research.pressures?.[0] || "Modernization priorities are visible across the current footprint.";
   return pressure.length > 110 ? `${pressure.slice(0, 107)}...` : pressure;
+}
+
+function buildPrimaryCardTitle(service) {
+  const byId = {
+    erp: "ERP advisory",
+    cloud: "Cloud platform",
+    "ai-data": "Data acceleration",
+    "app-modernization": "App renewal",
+    security: "Security readiness",
+    "digital-experience": "Digital experience"
+  };
+
+  return byId[service?.id] || service?.name || "Priority program";
 }
 
 function renderRecommendationCards(services) {
@@ -194,6 +179,7 @@ export function renderLandingPageHtml(page) {
   const heroDisplayTitle = renderHeroDisplayTitle(heroDisplayLines);
   const heroLead = buildHeroLead(research);
   const dashboardBlurb = buildDashboardBlurb(research);
+  const primaryCardTitle = buildPrimaryCardTitle(services[0]);
 
   return `<!doctype html>
 <html lang="en">
@@ -424,8 +410,8 @@ export function renderLandingPageHtml(page) {
 
       .hero-copy h1 {
         max-width: none;
-        font-size: clamp(4.3rem, 8vw, 7.9rem);
-        line-height: 0.88;
+        font-size: clamp(3.7rem, 6.8vw, 6.3rem);
+        line-height: 0.9;
       }
 
       .hero-copy h1 span {
@@ -573,10 +559,10 @@ export function renderLandingPageHtml(page) {
 
       .dashboard-balance strong {
         display: block;
-        max-width: 9ch;
+        max-width: 8ch;
         margin-top: 12px;
         font-family: "Sora", sans-serif;
-        font-size: clamp(3rem, 4.9vw, 4.5rem);
+        font-size: clamp(2.4rem, 4vw, 3.25rem);
         line-height: 0.98;
         letter-spacing: -0.06em;
       }
@@ -1043,7 +1029,7 @@ export function renderLandingPageHtml(page) {
 
                 <div class="dashboard-balance">
                   <p>ABM opportunity profile</p>
-                  <strong>${escapeHtml(services[0]?.cardTitle || "Priority Program")}</strong>
+                  <strong>${escapeHtml(primaryCardTitle)}</strong>
                   <span>${escapeHtml(dashboardBlurb)}</span>
                   <div class="chart-strip" aria-hidden="true">
                     <span class="chart-bar"></span>
