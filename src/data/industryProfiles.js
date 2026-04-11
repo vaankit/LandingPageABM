@@ -3,28 +3,28 @@ export const industryProfiles = [
     id: "manufacturing",
     label: "Manufacturing",
     keywords: ["manufacturing", "plant", "factory", "equipment", "industrial", "machinery", "parts", "production"],
-    heroTitle: "Modernize operations, planning, and visibility without slowing the people who keep production moving.",
-    subhead: "Spot.AI helps manufacturers connect operations, data, and modernization priorities into a practical roadmap.",
+    heroTitle: "Turn complex products and long sales cycles into clearer campaigns that move faster.",
+    subhead: "Spot.AI helps manufacturers generate sharper marketing materials, faster email campaigns, and better-timed outreach around launches and industry moments.",
     pressures: [
-      "Margin pressure from inventory, procurement, and service delivery variability",
-      "Limited real-time visibility across plants, field service, and supply chain data",
-      "Workforce continuity challenges as knowledge stays trapped in legacy systems"
+      "Complex offers are hard to explain quickly across campaigns and sales assets",
+      "Long buying cycles demand consistent follow-up without constant manual rewriting",
+      "Seasonal launches and trade-event windows are easy to miss without better planning"
     ],
-    framing: "Modernization here is not an IT upgrade. It is a margin, visibility, and workforce strategy.",
+    framing: "Marketing here is not just collateral production. It is how product complexity gets translated into momentum, clarity, and better follow-through.",
     heroImage: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1581092580497-e0d23cbdf1dc?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Supply chain visibility for a multi-site manufacturer",
-        summary: "Consolidated fragmented operational reporting into a single planning view, helping leadership improve decision speed and inventory discipline."
+        title: "Realtime launch collateral for a multi-product manufacturer",
+        summary: "Generated faster campaign-ready one-pagers and product messaging variants so the team could support launches without slowing commercial momentum."
       },
       {
-        title: "ERP roadmap for field and back-office alignment",
-        summary: "Built a phased ERP strategy that reduced process variation across finance, service operations, and procurement."
+        title: "Email follow-up system for long-cycle industrial leads",
+        summary: "Created reusable nurture copy and follow-up sequences that reduced manual rewriting while keeping sales outreach consistent."
       },
       {
-        title: "Manufacturing analytics acceleration",
-        summary: "Used Microsoft data tooling to surface production and service KPIs in dashboards designed for plant and executive teams."
+        title: "Holiday and event timing planner for campaign readiness",
+        summary: "Mapped key industry dates, long weekends, and launch windows to help marketing plan ahead instead of reacting late."
       }
     ]
   },
@@ -32,28 +32,28 @@ export const industryProfiles = [
     id: "retail",
     label: "Retail and Commerce",
     keywords: ["retail", "commerce", "store", "shop", "customer", "merchandise", "brand", "consumer"],
-    heroTitle: "Connect inventory, customer insight, and digital experience into a retail engine that moves with demand.",
-    subhead: "Spot.AI helps retail and commerce teams modernize data, platforms, and customer experience for sharper decisions.",
+    heroTitle: "Build faster campaigns around promotions, peak periods, and customer attention shifts.",
+    subhead: "Spot.AI helps retail and commerce teams generate campaign assets, promo emails, and holiday-aware marketing plans without losing brand consistency.",
     pressures: [
-      "Demand volatility and inventory imbalance across channels",
-      "Disconnected customer, merchandising, and operational data",
-      "Pressure to improve digital experience without creating more platform sprawl"
+      "Promotional calendars move quickly and content demands pile up fast",
+      "Campaign messaging often drifts across channels, offers, and audience segments",
+      "Holiday and long-weekend timing can make or break retail performance"
     ],
-    framing: "Modernization here is not a channel project. It is an operating model decision that protects margin and customer loyalty.",
+    framing: "Marketing here is not just about looking busy. It is about matching timing, offer clarity, and channel execution to the moments that convert.",
     heroImage: "https://images.unsplash.com/photo-1481437156560-3205f6a55735?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1520607162513-77705c0f0d4a?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Unified data visibility for retail leadership",
-        summary: "Brought merchandising, inventory, and finance views together to support faster decisions across channel teams."
+        title: "Promo asset generation for fast-moving retail campaigns",
+        summary: "Produced social, web, and campaign copy variations in realtime so launches could move without waiting on full rewrite cycles."
       },
       {
-        title: "Commerce experience refresh",
-        summary: "Improved digital UX and platform planning to support stronger conversion and easier content operations."
+        title: "Email generation for promotional bursts and lifecycle follow-up",
+        summary: "Built sharper subject lines, promo emails, and reminder sequences that supported stronger campaign consistency across customer touchpoints."
       },
       {
-        title: "Cloud-ready retail operations roadmap",
-        summary: "Sequenced ERP and cloud modernization steps to reduce fragmentation while preserving day-to-day continuity."
+        title: "Long-weekend planner for seasonal retail moments",
+        summary: "Turned public holidays and long weekends into clearer campaign windows for launches, reminders, and last-chance pushes."
       }
     ]
   },
@@ -61,28 +61,28 @@ export const industryProfiles = [
     id: "logistics",
     label: "Logistics and Distribution",
     keywords: ["logistics", "distribution", "warehouse", "shipping", "freight", "transport", "fleet", "fulfillment"],
-    heroTitle: "Build the data, cloud, and application foundation needed for faster movement and fewer blind spots.",
-    subhead: "Spot.AI helps logistics organizations modernize visibility, integration, and platform resilience without adding complexity.",
+    heroTitle: "Turn operational reliability into clearer messaging and better campaign follow-through.",
+    subhead: "Spot.AI helps logistics and distribution teams package their value into sharper marketing materials, outbound emails, and timing-aware campaign plans.",
     pressures: [
-      "Low visibility across warehouse, fleet, partner, and customer touchpoints",
-      "Operational delays caused by brittle legacy integrations and manual workarounds",
-      "Pressure to improve service levels while controlling infrastructure and labor cost"
+      "Service differentiation is difficult when offers sound similar across the market",
+      "Marketing teams often need to explain complex capabilities with very little time",
+      "Campaign opportunities around seasonal peaks and shipping windows are easy to miss"
     ],
-    framing: "Modernization here is not a back-office exercise. It is how service reliability and operational control improve together.",
+    framing: "Marketing here is not just brand polish. It is how capability, reliability, and timing get turned into more persuasive commercial conversations.",
     heroImage: "https://images.unsplash.com/photo-1494412574643-ff11b0a5c1c3?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1519003722824-194d4455a60c?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Operational dashboarding for distributed logistics teams",
-        summary: "Improved decision speed by centralizing shipment, warehouse, and service performance indicators."
+        title: "Service one-pagers for logistics outreach",
+        summary: "Created clearer marketing materials to explain differentiated capabilities across freight, fulfillment, and service operations."
       },
       {
-        title: "Legacy integration modernization",
-        summary: "Mapped a cloud-native integration strategy that reduced manual reconciliation and reporting delays."
+        title: "Outbound email generation for B2B logistics campaigns",
+        summary: "Built reusable email copy for lead follow-up, service awareness, and account-based outreach without starting from scratch each time."
       },
       {
-        title: "Platform stability and governance planning",
-        summary: "Defined a phased cloud approach that improved reliability and cost visibility for operations leadership."
+        title: "Seasonal planning for peak shipping campaigns",
+        summary: "Mapped campaign timing to shipping cycles, long weekends, and customer planning periods to improve readiness."
       }
     ]
   },
@@ -90,28 +90,28 @@ export const industryProfiles = [
     id: "banking",
     label: "Banking and Financial Services",
     keywords: ["bank", "banking", "financial", "lending", "payments", "wealth", "treasury", "fintech"],
-    heroTitle: "Modernize data, applications, and governance to improve insight without losing control.",
-    subhead: "Spot.AI brings together data, cloud, modernization, and compliance thinking for regulated transformation programs.",
+    heroTitle: "Create clearer, trust-building marketing without slowing down approval-heavy teams.",
+    subhead: "Spot.AI helps financial services teams generate compliant-friendly marketing drafts, stronger campaign emails, and timing-aware outreach for important customer moments.",
     pressures: [
-      "Regulatory and risk requirements that slow product and reporting change",
-      "Legacy systems that limit data access and operational transparency",
-      "Growing need for secure analytics and AI-ready data foundations"
+      "Marketing copy needs to be precise, trustworthy, and easy to review",
+      "Campaign timelines stretch when every draft starts from a blank page",
+      "Deadline-driven customer moments need better planning and faster execution"
     ],
-    framing: "Modernization here is not only about efficiency. It is about trust, speed, and decision quality in a regulated environment.",
+    framing: "Marketing here is not just promotion. It is how trust, clarity, and timing show up in every customer-facing message.",
     heroImage: "https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1556740749-887f6717d7e4?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Data assessment for financial reporting and analytics",
-        summary: "Established a clearer path for trusted reporting and future AI use cases across fragmented data sources."
+        title: "Marketing material generation for financial product campaigns",
+        summary: "Created faster draft assets for campaigns that needed to balance clarity, trust, and internal review requirements."
       },
       {
-        title: "Cloud and security planning for regulated workloads",
-        summary: "Defined a practical roadmap balancing resilience, governance, and modernization pace."
+        title: "Email copy refresh for customer onboarding and reminders",
+        summary: "Generated stronger lifecycle email drafts that improved consistency across onboarding, nurture, and service communication."
       },
       {
-        title: "Application modernization for operational continuity",
-        summary: "Prioritized legacy modernization opportunities with minimal disruption to core business teams."
+        title: "Calendar planning for tax, reporting, and deadline-led campaigns",
+        summary: "Turned important date-driven customer moments into clearer campaign plans with better lead time."
       }
     ]
   },
@@ -119,57 +119,57 @@ export const industryProfiles = [
     id: "healthcare",
     label: "Healthcare",
     keywords: ["healthcare", "hospital", "patient", "clinical", "care", "provider", "medical", "health"],
-    heroTitle: "Support care delivery and operational resilience with systems that give teams better visibility and less friction.",
-    subhead: "Spot.AI helps healthcare organizations align data, applications, cloud, and compliance into a modernization roadmap built for continuity.",
+    heroTitle: "Create clearer healthcare marketing that respects trust, timing, and message sensitivity.",
+    subhead: "Spot.AI helps healthcare organizations generate useful marketing drafts, outreach emails, and planning support for awareness windows and service campaigns.",
     pressures: [
-      "Fragmented systems that slow access to timely operational insight",
-      "Compliance and security obligations that increase project complexity",
-      "Pressure to modernize workflows without adding burden to care teams"
+      "Healthcare messaging needs empathy, clarity, and care with every draft",
+      "Multiple audiences require tailored content without multiplying manual effort",
+      "Awareness dates and seasonal service pushes need stronger planning discipline"
     ],
-    framing: "Modernization here is not just infrastructure work. It is how operational efficiency and service quality improve together.",
+    framing: "Marketing here is not just awareness work. It is how trust and accessibility show up before a conversation even starts.",
     heroImage: "https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1584515933487-779824d29309?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Operational reporting foundation for healthcare teams",
-        summary: "Improved visibility into cross-functional KPIs to support faster decision-making and better planning."
+        title: "Service campaign content generation for healthcare teams",
+        summary: "Produced clearer service-line messaging and campaign assets that supported outreach without losing tone sensitivity."
       },
       {
-        title: "Security and compliance readiness program",
-        summary: "Structured a remediation roadmap aligned to modernization and audit priorities."
+        title: "Email reminders and nurture content for healthcare audiences",
+        summary: "Generated reusable reminder and follow-up copy for healthcare programs where timing and clarity mattered."
       },
       {
-        title: "Legacy application modernization strategy",
-        summary: "Sequenced modernization efforts to reduce risk while preserving day-to-day operations."
+        title: "Awareness calendar planning for healthcare campaigns",
+        summary: "Mapped observance dates, long weekends, and outreach windows into a clearer planning view for the marketing team."
       }
     ]
   },
   {
     id: "technology",
     label: "Technology",
-    keywords: ["software", "platform", "technology", "saas", "digital", "cloud", "data", "ai"],
-    heroTitle: "Scale your platform and operating model with sharper visibility, stronger foundations, and less technical drag.",
-    subhead: "Spot.AI helps technology organizations modernize cloud, data, applications, and delivery systems as they grow.",
+    keywords: ["software", "platform", "technology", "saas", "digital", "product", "data", "ai"],
+    heroTitle: "Ship sharper launch messaging, campaign emails, and growth content without slowing the team down.",
+    subhead: "Spot.AI helps technology teams turn product velocity into clearer launch materials, smarter email flows, and better campaign planning.",
     pressures: [
-      "Technical debt slowing feature delivery and operational consistency",
-      "Data fragmentation across product, customer, and back-office systems",
-      "Pressure to scale securely without overcomplicating the stack"
+      "Launches move quickly but messaging quality still needs to stay high",
+      "Product, growth, and sales teams need reusable copy that keeps pace with release cycles",
+      "Campaign planning breaks down when priorities shift faster than content production"
     ],
-    framing: "Modernization here is not cleanup work. It is how delivery speed and operating leverage improve together.",
+    framing: "Marketing here is not just copywriting. It is how product momentum gets turned into demand, clarity, and stronger follow-up.",
     heroImage: "https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Cloud operating model reset",
-        summary: "Refined architecture, governance, and cost controls to support cleaner growth on modern cloud foundations."
+        title: "Launch kit generation for a growing SaaS team",
+        summary: "Created faster launch copy across landing page sections, email announcements, and supporting marketing materials."
       },
       {
-        title: "Data and analytics acceleration",
-        summary: "Created a clearer roadmap for trusted reporting and future AI-enabled workflows."
+        title: "Lifecycle email drafts for product-led growth",
+        summary: "Generated nurture and activation emails that helped the team move faster across onboarding, updates, and re-engagement."
       },
       {
-        title: "Legacy platform modernization plan",
-        summary: "Identified the most practical modernization path across APIs, services, and deployment pipelines."
+        title: "Campaign planning support for release-heavy calendars",
+        summary: "Used planning prompts and date-aware workflows to keep launch timing, content production, and follow-up aligned."
       }
     ]
   },
@@ -177,28 +177,28 @@ export const industryProfiles = [
     id: "general",
     label: "General Business",
     keywords: [],
-    heroTitle: "Turn business complexity into a clearer transformation roadmap across systems, data, and digital operations.",
-    subhead: "Spot.AI helps organizations move from fragmented technology decisions to coordinated modernization plans.",
+    heroTitle: "Turn scattered marketing effort into clearer campaigns, better timing, and faster execution.",
+    subhead: "Spot.AI helps organizations generate marketing materials, emails, calendar-aware plans, and practical day-to-day marketing support.",
     pressures: [
-      "Disconnected systems limiting timely operational visibility",
-      "Legacy processes creating avoidable effort and decision lag",
-      "Difficulty prioritizing modernization investments across competing needs"
+      "Content production slows down when every campaign starts from scratch",
+      "Messaging becomes inconsistent across channels and audience segments",
+      "Public holidays and key campaign windows are easy to miss without a planner"
     ],
-    framing: "Modernization here is not a collection of projects. It is an operating strategy for better visibility and execution.",
+    framing: "Marketing here is not a collection of random tasks. It is a system for creating momentum with clearer messaging and better timing.",
     heroImage: "https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1600&q=80",
     insightImage: "https://images.unsplash.com/photo-1552664730-d307ca884978?auto=format&fit=crop&w=1200&q=80",
     caseStudies: [
       {
-        title: "Transformation roadmap for complex operations",
-        summary: "Built a phased view across systems, teams, and priorities so leadership could move with more confidence."
+        title: "Realtime content generation for a lean marketing team",
+        summary: "Reduced time-to-draft for campaign assets and one-pagers so the team could move from idea to execution faster."
       },
       {
-        title: "Data visibility assessment",
-        summary: "Identified high-impact reporting and analytics opportunities tied to operational performance."
+        title: "Email generation program for repeatable campaigns",
+        summary: "Created reusable email copy structures that improved consistency across launches, nurture, and reminder flows."
       },
       {
-        title: "Cloud and modernization planning",
-        summary: "Sequenced practical improvements that reduced risk while creating a stronger digital foundation."
+        title: "Holiday-aware planning system for campaign timing",
+        summary: "Turned public holidays and long weekends into a practical planning rhythm for better campaign sequencing."
       }
     ]
   }

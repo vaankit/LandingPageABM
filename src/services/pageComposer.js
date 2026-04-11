@@ -8,7 +8,7 @@ const MAX_SELECTED_SERVICES = 4;
 
 function buildGreeting(contactName, contactTitle) {
   if (contactName && contactTitle) {
-    return `Hi ${contactName}, as ${contactTitle} you are likely balancing growth priorities with the need for clearer operational control.`;
+    return `Hi ${contactName}, as ${contactTitle} you are likely balancing growth priorities with the need for sharper messaging and faster execution.`;
   }
   if (contactName) {
     return `Hi ${contactName}, we put this page together with your team and business context in mind.`;

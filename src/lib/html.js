@@ -38,7 +38,7 @@ function renderHeroDisplayTitle(lines) {
 
 function buildHeroLead(research) {
   const companyName = research.companyName || "This account";
-  return `${companyName} is balancing growth priorities, reporting clarity, and operational control.`;
+  return `${companyName} is balancing growth priorities, campaign momentum, and message clarity.`;
 }
 
 function buildDashboardBlurb(research) {
