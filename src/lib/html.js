@@ -1226,6 +1226,11 @@ export function renderLandingPageHtml(page) {
         padding: 20px;
       }
 
+      .booking-backdrop[hidden],
+      .booking-modal[hidden] {
+        display: none !important;
+      }
+
       .booking-panel {
         width: min(720px, 100%);
         max-height: min(90vh, 920px);
