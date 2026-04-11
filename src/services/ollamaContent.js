@@ -66,7 +66,7 @@ Brand facts:
 - Based in ${brandProfile.location}
 - Positioning: ${brandProfile.tagline}
 - Operator profile: ${brandProfile.operatorTitle}
-- Strengths: AI strategy, cloud architecture, data platforms, automation, app modernization, and digital product delivery
+- Strengths: realtime marketing material generation, realtime email generation, holiday-aware campaign planning, and on-demand marketing assistance
 - Tone: modern, sharp, practical, and future-facing
 
 Fallback copy baseline:

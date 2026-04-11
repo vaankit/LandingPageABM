@@ -4,6 +4,8 @@ import { renderLandingPageHtml } from "../lib/html.js";
 import { slugify } from "../lib/utils.js";
 import { generateAbmNarrative } from "./ollamaContent.js";
 
+const MAX_SELECTED_SERVICES = 4;
+
 function buildGreeting(contactName, contactTitle) {
   if (contactName && contactTitle) {
     return `Hi ${contactName}, as ${contactTitle} you are likely balancing growth priorities with the need for clearer operational control.`;
@@ -17,9 +19,9 @@ function buildGreeting(contactName, contactTitle) {
 function defaultServices(serviceIds) {
   const selected = getServicesByIds(serviceIds);
   if (selected.length >= 1) {
-    return selected.slice(0, 3);
+    return selected.slice(0, MAX_SELECTED_SERVICES);
   }
-  return serviceCatalog.slice(0, 3);
+  return serviceCatalog.slice(0, MAX_SELECTED_SERVICES);
 }
 
 function buildDeterministicNarrative(research, services) {
@@ -29,9 +31,9 @@ function buildDeterministicNarrative(research, services) {
     understandingSummary: research.summary,
     pressures: research.pressures,
     framing: research.framing,
-    recommendationIntro: `We selected these services because they align with the business pressures, operating realities, and modernization opportunities visible from your current footprint.`,
-    ctaText: `Let's explore what a smarter transformation roadmap could look like for ${research.companyName}.`,
-    ctaSubtext: "Bring the priorities you are balancing right now. Spot.AI will bring a pragmatic view on where to start, what to simplify, and how to sequence delivery.",
+    recommendationIntro: "We selected these services because they align with the audience signals, campaign opportunities, and messaging priorities visible from your current footprint.",
+    ctaText: `Let's explore which marketing workflows could create the fastest lift for ${research.companyName}.`,
+    ctaSubtext: "Bring the campaign goals you are balancing right now. Spot.AI will bring practical ideas across content generation, email execution, planning, and faster iteration.",
     recommendationCards: services.map((service) => ({
       serviceId: service.id,
       cardTitle: service.cardTitle,
@@ -117,7 +119,7 @@ export async function composeLandingPage({
         { id: "service-details", type: "service-details", content: services },
         { id: "why-spot-ai", type: "badges", content: brandProfile.trustBadges },
         { id: "case-studies", type: "case-studies", content: research.caseStudies },
-        { id: "cta", type: "cta", content: { headline: `Let's Start the Conversation`, body: "Connect with Spot.AI to review priorities, architecture choices, delivery options, and next steps." } }
+        { id: "cta", type: "cta", content: { headline: `Let's Start the Conversation`, body: "Connect with Spot.AI to review campaign priorities, workflow opportunities, and the fastest next steps." } }
       ]
     }
   };

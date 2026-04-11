@@ -1,134 +1,90 @@
 export const serviceCatalog = [
   {
-    id: "erp",
-    name: "ERP",
-    cardTitle: "ERP Advisory and Consultation",
-    cardSummary: "Align operating processes, business applications, and reporting with an implementation path that can scale.",
+    id: "marketing-materials",
+    name: "Marketing Materials",
+    cardTitle: "Marketing Material Generation in Realtime",
+    cardSummary: "Generate one-pagers, brochures, social copy, landing-page blocks, and campaign assets instantly with sharper brand alignment.",
     anticipate: [
-      "A current-state review across finance, supply chain, and operational workflows",
-      "A platform fit discussion around Dynamics 365, SAP, or Oracle options",
-      "A roadmap that prioritizes business continuity while modernizing the core"
+      "A quick brief around audience, offer, channel, and campaign goal",
+      "Realtime draft generation for content blocks across multiple marketing formats",
+      "Fast iteration on tone, hooks, structure, and calls to action"
     ],
     deliverables: [
-      "Target operating model and platform recommendation",
-      "Phased implementation or rescue roadmap",
-      "Executive decision pack with cost, timing, and dependency view"
+      "Brand-aligned draft assets for key marketing formats",
+      "Multiple content angles and reusable copy variations",
+      "Editable output ready for design, review, or publishing"
     ],
-    timeline: "4-8 weeks for advisory and planning",
+    timeline: "Realtime generation with same-session iteration",
     differentiators: [
-      "Hands-on architecture guidance without big-agency overhead",
-      "Vendor-neutral planning across Microsoft, SAP, Oracle, and adjacent ecosystems",
-      "Practical sequencing that keeps business continuity front and center"
+      "Built for fast output without losing brand consistency",
+      "Useful for lean teams that need more volume with less friction",
+      "Designed to create usable marketing drafts, not generic filler"
     ]
   },
   {
-    id: "cloud",
-    name: "Cloud",
-    cardTitle: "Cloud Platform and Migration",
-    cardSummary: "Build a resilient Azure or AWS foundation with clearer governance, cost control, and deployment velocity.",
+    id: "marketing-emails",
+    name: "Marketing Emails",
+    cardTitle: "Marketing Email Generation in Realtime",
+    cardSummary: "Create campaign emails, nurture sequences, promos, and follow-ups in realtime with stronger subject lines and clearer CTAs.",
     anticipate: [
-      "An infrastructure, app, and dependency discovery sprint",
-      "Target-state architecture and migration sequencing",
-      "Security, backup, and cost governance planning from the start"
+      "A fast intake on segment, objective, offer, and desired tone",
+      "Realtime drafting of subject lines, preview text, body copy, and CTA variants",
+      "Quick refinement for urgency, personalization, clarity, and conversion intent"
     ],
     deliverables: [
-      "Cloud readiness assessment",
-      "Migration wave plan and landing zone design",
-      "Managed services and optimization recommendations"
+      "Single emails or multi-step campaign sequences",
+      "Subject line, preview text, and CTA variations for testing",
+      "Channel-ready copy structured for common email workflows"
     ],
-    timeline: "3-6 weeks for assessment and migration planning",
+    timeline: "Realtime drafting with rapid revision cycles",
     differentiators: [
-      "Clear cloud architecture thinking grounded in delivery reality",
-      "Practical DevOps, platform, and cost-governance recommendations",
-      "A direct working model for faster decisions and fewer handoffs"
+      "Balances speed, persuasion, and readability",
+      "Easy to adapt for launches, promotions, nurture, and re-engagement",
+      "Helps teams move from blank page to send-ready copy faster"
     ]
   },
   {
-    id: "ai-data",
-    name: "AI & Data",
-    cardTitle: "Data Assessment and AI Acceleration",
-    cardSummary: "Turn fragmented data into operational visibility, predictive insight, and practical AI use cases.",
+    id: "holiday-planner",
+    name: "Holiday Planner",
+    cardTitle: "Public Holiday and Long Weekend Planner",
+    cardSummary: "Turn public holidays and long weekends into practical campaign timing, promotion windows, and better content planning.",
     anticipate: [
-      "A data estate review across sources, quality, access, and reporting gaps",
-      "High-value use case identification for analytics, forecasting, or copilots",
-      "Prioritized recommendations that balance readiness with measurable outcomes"
+      "Calendar-aware planning around public holidays, long weekends, and seasonal moments",
+      "Identification of timing opportunities for campaigns, reminders, and promotions",
+      "Suggestions that account for audience behaviour and internal scheduling realities"
     ],
     deliverables: [
-      "Data maturity snapshot and reference architecture",
-      "Power BI, Fabric, or Azure AI use case roadmap",
-      "Prototype opportunities and KPI tracking plan"
+      "Holiday-aware campaign planning recommendations",
+      "Opportunity lists for seasonal or date-linked marketing pushes",
+      "Suggested send, launch, and follow-up windows"
     ],
-    timeline: "2-5 weeks for assessment and prioritization",
+    timeline: "Realtime planning output with date-aware updates",
     differentiators: [
-      "Strong focus on AI use cases that can move from idea to prototype quickly",
-      "Modern data platform thinking across analytics, automation, and reporting",
-      "Business-outcome-first recommendations instead of dashboard theatre"
+      "Turns calendar events into practical marketing timing",
+      "Helps teams avoid missed opportunities and low-attention dead zones",
+      "Useful for both external campaigns and internal planning cadence"
     ]
   },
   {
-    id: "app-modernization",
-    name: "App Modernization",
-    cardTitle: "Application Modernization",
-    cardSummary: "Refactor legacy systems into maintainable cloud-native services without breaking critical operations.",
+    id: "marketing-assist",
+    name: "Marketing Assist",
+    cardTitle: "Marketing Assist",
+    cardSummary: "Use an on-demand marketing copilot for brainstorming, rewriting, positioning, campaign ideas, and day-to-day execution support.",
     anticipate: [
-      "A review of legacy dependencies, release bottlenecks, and performance risks",
-      "A modernization path spanning rehost, replatform, refactor, or rebuild decisions",
-      "Architecture guidance around APIs, containers, and microservices"
+      "Flexible support for briefs, hooks, headlines, messaging, and campaign ideas",
+      "Realtime help improving positioning, copy, and next-step recommendations",
+      "Open-ended use across planning, drafting, editing, and iteration"
     ],
     deliverables: [
-      "Modernization strategy and application portfolio heat map",
-      "Reference architecture and delivery backlog",
-      "Migration approach with risk, effort, and sequencing"
+      "Campaign ideas and messaging options on demand",
+      "Rewritten copy and sharper positioning suggestions",
+      "Practical next steps for execution across content and campaigns"
     ],
-    timeline: "4-7 weeks for discovery and target-state planning",
+    timeline: "On-demand realtime assistance",
     differentiators: [
-      "A practical lens on when to rehost, refactor, or rebuild",
-      "Application, platform, and delivery guidance in one place",
-      "Modernization plans designed to reduce risk, not just chase trends"
-    ]
-  },
-  {
-    id: "security",
-    name: "Security",
-    cardTitle: "Security and Compliance Readiness",
-    cardSummary: "Strengthen security posture and compliance controls while supporting growth and modernization goals.",
-    anticipate: [
-      "A review of identity, endpoint, infrastructure, and application security posture",
-      "Control mapping for compliance priorities such as ISO, HIPAA, or PCI",
-      "A practical remediation plan tied to business and operational risk"
-    ],
-    deliverables: [
-      "Security gap assessment",
-      "Prioritized remediation roadmap",
-      "Compliance control recommendations and governance guidance"
-    ],
-    timeline: "2-4 weeks for assessment and action planning",
-    differentiators: [
-      "Security guidance aligned to cloud, data, and modernization changes",
-      "Practical remediation priorities tied to technical and business risk",
-      "Independent recommendations that fit lean teams and modern stacks"
-    ]
-  },
-  {
-    id: "digital-experience",
-    name: "Digital Experience",
-    cardTitle: "Digital Experience and Commerce",
-    cardSummary: "Improve digital journeys, customer experience, and conversion through smarter UX, content, and platforms.",
-    anticipate: [
-      "A review of current digital journeys, UX friction, and platform limitations",
-      "Prioritization of customer-facing improvements tied to revenue or retention",
-      "A roadmap covering CMS, commerce, mobile, and CRM-connected experiences"
-    ],
-    deliverables: [
-      "Experience audit and opportunity map",
-      "UX recommendations and platform fit guidance",
-      "Phased rollout plan for web, commerce, or mobile enhancements"
-    ],
-    timeline: "3-6 weeks for assessment and roadmap",
-    differentiators: [
-      "Sharper UX and messaging tied to measurable business goals",
-      "Ability to connect front-end experience work to product, data, and CRM foundations",
-      "A blend of technical delivery and design sensibility without unnecessary process drag"
+      "Acts like a versatile day-to-day marketing copilot",
+      "Useful when teams need momentum without adding process overhead",
+      "Combines ideation, editing, and execution support in one workflow"
     ]
   }
 ];

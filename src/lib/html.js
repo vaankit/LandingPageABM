@@ -17,15 +17,13 @@ function renderList(items, className = "") {
 
 function serviceTitleFragment(service) {
   const byId = {
-    erp: ["Modernize", "finance", "with control"],
-    cloud: ["Upgrade", "cloud", "with confidence"],
-    "ai-data": ["Activate", "data", "with clarity"],
-    "app-modernization": ["Renew", "apps", "with speed"],
-    security: ["Govern", "risk", "with confidence"],
-    "digital-experience": ["Elevate", "journeys", "with clarity"]
+    "marketing-materials": ["Generate", "materials", "in realtime"],
+    "marketing-emails": ["Write", "emails", "in realtime"],
+    "holiday-planner": ["Plan", "holiday timing", "with intent"],
+    "marketing-assist": ["Get", "marketing help", "on demand"]
   };
 
-  return byId[service?.id] || ["Modernize", "delivery with", "clarity"];
+  return byId[service?.id] || ["Create", "marketing assets", "with speed"];
 }
 
 function buildHeroDisplayLines(services) {
@@ -44,18 +42,16 @@ function buildHeroLead(research) {
 }
 
 function buildDashboardBlurb(research) {
-  const pressure = research.pressures?.[0] || "Modernization priorities are visible across the current footprint.";
+  const pressure = research.pressures?.[0] || "Marketing priorities are visible across the current footprint.";
   return pressure.length > 110 ? `${pressure.slice(0, 107)}...` : pressure;
 }
 
 function buildPrimaryCardTitle(service) {
   const byId = {
-    erp: "ERP advisory",
-    cloud: "Cloud platform",
-    "ai-data": "Data acceleration",
-    "app-modernization": "App renewal",
-    security: "Security readiness",
-    "digital-experience": "Digital experience"
+    "marketing-materials": "Realtime materials",
+    "marketing-emails": "Realtime emails",
+    "holiday-planner": "Holiday planner",
+    "marketing-assist": "Marketing assist"
   };
 
   return byId[service?.id] || service?.name || "Priority program";
@@ -143,7 +139,7 @@ function renderHeroSignals(signals) {
 
 function renderDashboardServiceRows(services) {
   return services
-    .slice(0, 3)
+    .slice(0, 4)
     .map(
       (service, index) => `
         <div class="dashboard-row">
@@ -172,7 +168,7 @@ export function renderLandingPageHtml(page) {
   } = page;
 
   const heroSignals = (research.evidence?.length ? research.evidence : research.pressures).slice(0, 3);
-  const primaryPressure = research.pressures[0] || "Modernization momentum is rising across the account.";
+  const primaryPressure = research.pressures[0] || "Marketing momentum is rising across the account.";
   const industryLabel = research.industryLabel || "Industry";
   const understandingTitle = `What we see across ${industryLabel.toLowerCase()} teams right now`;
   const heroDisplayLines = buildHeroDisplayLines(services);
@@ -1047,7 +1043,7 @@ export function renderLandingPageHtml(page) {
 
               <div class="floating-card bottom">
                 <span>Momentum</span>
-                <strong>${escapeHtml((research.evidence?.[0] || research.pressures?.[1] || "High-fit account for a focused modernization conversation."))}</strong>
+                <strong>${escapeHtml((research.evidence?.[0] || research.pressures?.[1] || "High-fit account for a focused marketing conversation."))}</strong>
               </div>
             </section>
           </div>
@@ -1106,7 +1102,7 @@ export function renderLandingPageHtml(page) {
         <section class="surface-dark">
           <div class="section-header">
             <p class="eyebrow">Why Spot.AI</p>
-            <h2>Built for modern teams that want strategic clarity and practical delivery</h2>
+            <h2>Built for modern teams that want sharper messaging and faster execution</h2>
             <p>${escapeHtml(recognition)}</p>
           </div>
 
@@ -1119,7 +1115,7 @@ export function renderLandingPageHtml(page) {
           <div class="section-header">
             <p class="eyebrow">Success Stories</p>
             <h2>Relevant examples for the same operating pressures</h2>
-            <p>These examples show the kinds of outcomes Spot.AI is built to support when visibility, modernization, and execution need to move together.</p>
+            <p>These examples show the kinds of outcomes Spot.AI is built to support when planning, messaging, and execution need to move together.</p>
           </div>
 
           <div class="story-grid">

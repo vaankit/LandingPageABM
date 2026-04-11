@@ -20,6 +20,7 @@ let generateTimer;
 let lastPayload = null;
 let lastPage = null;
 let previewBlobUrl = null;
+const DEFAULT_SELECTED_SERVICES = 4;
 
 function setPreviewActionState(enabled) {
   openPreviewButton.disabled = !enabled;
@@ -173,7 +174,7 @@ function renderServices(services) {
     .map(
       (service, index) => `
         <label class="service-option">
-          <input type="checkbox" value="${service.id}" ${index < 3 ? "checked" : ""} />
+          <input type="checkbox" value="${service.id}" ${index < DEFAULT_SELECTED_SERVICES ? "checked" : ""} />
           <div>
             <strong>${service.cardTitle}</strong>
             <p>${service.cardSummary}</p>
