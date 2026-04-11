@@ -7,3 +7,60 @@ services:
     buildCommand: npm install
     startCommand: npm start
     healthCheckPath: /api/health
+    envVars:
+      - key: HOST
+        value: 0.0.0.0
+      - key: APP_URL
+        sync: false
+      - key: PUBLIC_BASE_URL
+        sync: false
+      - key: PUBLIC_BOOKING_API_URL
+        sync: false
+      - key: PUBLIC_BOOKING_ALLOWED_ORIGINS
+        value: "*"
+      - key: BOOKING_DURATION_MINUTES
+        value: "30"
+      - key: BOOKING_OWNER_TIMEZONE
+        value: "Pacific/Auckland"
+      - key: BOOKING_CREATE_MEET_LINK
+        value: "true"
+      - key: BOOKING_RATE_LIMIT_WINDOW_MS
+        value: "900000"
+      - key: BOOKING_RATE_LIMIT_MAX
+        value: "10"
+      - key: BOOKING_BUSINESS_START_HOUR
+        value: "9"
+      - key: BOOKING_BUSINESS_END_HOUR
+        value: "17"
+      - key: BOOKING_LOOKAHEAD_DAYS
+        value: "14"
+      - key: BOOKING_SLOT_INTERVAL_MINUTES
+        value: "30"
+      - key: BOOKING_OWNER_EMAIL
+        sync: false
+      - key: BOOKING_NOTIFICATION_WEBHOOK_URL
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
+      - key: GOOGLE_CALENDAR_ID
+        value: "primary"
+      - key: TWILIO_ACCOUNT_SID
+        sync: false
+      - key: TWILIO_AUTH_TOKEN
+        sync: false
+      - key: TWILIO_FROM_NUMBER
+        sync: false
+      - key: TWILIO_MACHINE_DETECTION
+        value: "Enable"
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_REALTIME_MODEL
+        value: "gpt-realtime"
+      - key: OPENAI_REALTIME_VOICE
+        value: "marin"
+      - key: OPENAI_TRANSCRIPTION_MODEL
+        value: "gpt-4o-mini-transcribe"

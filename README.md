@@ -47,6 +47,66 @@ The app is configured to use a local Ollama instance by default for richer ABM c
 - `local-json`: saves the generated draft to the `drafts/` folder
 - `http-json`: POSTs the generated page model to `PUBLISH_API_URL` with token-based auth
 
+## Demo booking + calling agent
+
+The generated landing pages now include a live booking modal behind the `Book a Demo` and `Book Intro Call` buttons.
+
+Booking flow:
+
+- The visitor picks a preferred date and time
+- The backend checks Google Calendar availability
+- If the slot is open, the app creates a calendar event and can optionally add a Google Meet link
+- If the visitor asks for a callback, the backend can place an outbound Twilio voice call
+- The call is handled by an OpenAI Realtime voice assistant that speaks naturally but identifies itself as Spot.AI's automated booking assistant
+- An optional webhook can notify you in Slack, Zapier, Make, or another system
+
+### Required environment variables
+
+Calendar:
+
+- `GOOGLE_CLIENT_ID`
+- `GOOGLE_CLIENT_SECRET`
+- `GOOGLE_REFRESH_TOKEN`
+- `GOOGLE_CALENDAR_ID`
+- `BOOKING_OWNER_EMAIL`
+- `BOOKING_OWNER_TIMEZONE`
+
+Voice agent:
+
+- `TWILIO_ACCOUNT_SID`
+- `TWILIO_AUTH_TOKEN`
+- `TWILIO_FROM_NUMBER`
+- `OPENAI_API_KEY`
+- `PUBLIC_BASE_URL`
+
+Recommended optional variables:
+
+- `PUBLIC_BOOKING_API_URL`
+- `PUBLIC_BOOKING_ALLOWED_ORIGINS`
+- `BOOKING_NOTIFICATION_WEBHOOK_URL`
+- `BOOKING_CREATE_MEET_LINK`
+
+### Google Calendar setup
+
+1. Create a Google Cloud project.
+2. Enable the Google Calendar API.
+3. Create an OAuth client for a web or desktop app.
+4. Generate a refresh token with Calendar scope for the Google account that owns the calendar.
+5. Set `GOOGLE_CALENDAR_ID=primary` if you want the owner account's main calendar.
+
+### Twilio setup
+
+1. Buy or use a Twilio number with voice capability.
+2. Set `TWILIO_FROM_NUMBER` to that number in E.164 format.
+3. Set `PUBLIC_BASE_URL` to the public Render URL of this app.
+4. Add your Twilio and OpenAI credentials to Render environment variables.
+
+The app creates outbound calls itself, so you do not need to configure a TwiML app manually unless you want a custom Twilio setup later.
+
+### Production note
+
+Render free instances can sleep, which is not ideal for phone callbacks and Twilio webhooks. For reliable production calling, move this service to a paid Render plan before sending live traffic through the voice agent.
+
 ## Deploying on Render
 
 This repo includes a `render.yaml` Blueprint for a Node web service.

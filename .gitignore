@@ -2,4 +2,6 @@ node_modules
 .env
 drafts/*.json
 drafts/*.html
+drafts/bookings/
 *.log
+.DS_Store

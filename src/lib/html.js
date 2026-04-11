@@ -154,6 +154,305 @@ function renderDashboardServiceRows(services) {
     .join("");
 }
 
+function getBookingApiBaseUrl() {
+  return String(process.env.PUBLIC_BOOKING_API_URL || process.env.PUBLIC_BASE_URL || process.env.APP_URL || "").trim();
+}
+
+function serializeForInlineScript(value) {
+  return JSON.stringify(value).replaceAll("</", "<\\/");
+}
+
+function renderBookingWidget(page) {
+  const bookingContext = {
+    apiBaseUrl: getBookingApiBaseUrl(),
+    sourcePageTitle: page.pageName,
+    defaultCompanyName: page.research.companyName || "",
+    requestedServices: page.services.map((service) => service.name),
+    defaultIntent: "demo"
+  };
+
+  return `
+    <div class="booking-backdrop" id="booking-backdrop" hidden></div>
+    <section class="booking-modal" id="booking-modal" aria-hidden="true" hidden>
+      <div class="booking-panel" role="dialog" aria-modal="true" aria-labelledby="booking-title">
+        <button class="booking-close" id="booking-close" type="button" aria-label="Close booking form">Close</button>
+
+        <div class="booking-header">
+          <p class="eyebrow">Book with Spot.AI</p>
+          <h2 id="booking-title">Book a Demo</h2>
+          <p id="booking-copy">Choose a time that suits you and, if you'd like, request a callback from Spot.AI's automated booking assistant.</p>
+        </div>
+
+        <form class="booking-form" id="booking-form">
+          <div class="booking-field-grid">
+            <label class="booking-field">
+              <span>Name</span>
+              <input name="fullName" type="text" autocomplete="name" placeholder="Your name" required />
+            </label>
+
+            <label class="booking-field">
+              <span>Work email</span>
+              <input name="workEmail" type="email" autocomplete="email" placeholder="you@company.com" required />
+            </label>
+
+            <label class="booking-field">
+              <span>Company</span>
+              <input name="companyName" type="text" autocomplete="organization" value="${escapeHtml(page.research.companyName || "")}" placeholder="Company name" />
+            </label>
+
+            <label class="booking-field">
+              <span>Phone</span>
+              <input name="phone" type="tel" autocomplete="tel" placeholder="+64..." />
+            </label>
+          </div>
+
+          <div class="booking-field-grid">
+            <label class="booking-field">
+              <span>Preferred date and time</span>
+              <input id="booking-preferred-time" name="preferredDateTime" type="datetime-local" required />
+            </label>
+
+            <label class="booking-field">
+              <span>Your timezone</span>
+              <input id="booking-timezone-label" type="text" value="" readonly />
+            </label>
+          </div>
+
+          <label class="booking-field">
+            <span>Notes</span>
+            <textarea name="notes" rows="4" placeholder="What would you like to cover in the call?"></textarea>
+          </label>
+
+          <label class="booking-checkbox">
+            <input name="requestCallback" type="checkbox" />
+            <span>Ask Spot.AI's automated booking assistant to call me after I submit this request.</span>
+          </label>
+
+          <p class="booking-hint">The callback assistant sounds natural, but it will identify itself as Spot.AI's automated booking assistant.</p>
+          <p class="booking-status" id="booking-status" hidden></p>
+          <div class="booking-suggestions" id="booking-suggestions" hidden></div>
+
+          <div class="booking-button-row">
+            <button class="nav-button booking-submit" type="submit">Send Request</button>
+            <button class="booking-secondary" id="booking-cancel" type="button">Not now</button>
+          </div>
+        </form>
+      </div>
+    </section>
+
+    <script>
+      const BOOKING_CONTEXT = ${serializeForInlineScript(bookingContext)};
+
+      (() => {
+        const modal = document.getElementById("booking-modal");
+        const backdrop = document.getElementById("booking-backdrop");
+        const closeButton = document.getElementById("booking-close");
+        const cancelButton = document.getElementById("booking-cancel");
+        const form = document.getElementById("booking-form");
+        const title = document.getElementById("booking-title");
+        const copy = document.getElementById("booking-copy");
+        const status = document.getElementById("booking-status");
+        const suggestions = document.getElementById("booking-suggestions");
+        const preferredTime = document.getElementById("booking-preferred-time");
+        const timezoneLabel = document.getElementById("booking-timezone-label");
+        const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+
+        const intentCopy = {
+          demo: {
+            title: "Book a Demo",
+            copy: "Pick a time and we’ll line up a focused demo around the marketing workflows that matter most."
+          },
+          "intro-call": {
+            title: "Book an Intro Call",
+            copy: "Choose a time for a quick introduction and we’ll make sure the right context is ready before the call."
+          }
+        };
+
+        function setStatus(message, tone) {
+          if (!message) {
+            status.hidden = true;
+            status.textContent = "";
+            status.dataset.tone = "";
+            return;
+          }
+
+          status.hidden = false;
+          status.textContent = message;
+          status.dataset.tone = tone || "info";
+        }
+
+        function clearSuggestions() {
+          suggestions.hidden = true;
+          suggestions.innerHTML = "";
+        }
+
+        function setMinimumTime() {
+          const next = new Date(Date.now() + 30 * 60 * 1000);
+          next.setMinutes(Math.ceil(next.getMinutes() / 15) * 15, 0, 0);
+          preferredTime.min = toLocalInputValue(next.toISOString());
+        }
+
+        function openModal(intent) {
+          const nextIntent = intent === "intro-call" ? "intro-call" : "demo";
+          modal.dataset.intent = nextIntent;
+          title.textContent = intentCopy[nextIntent].title;
+          copy.textContent = intentCopy[nextIntent].copy;
+          modal.hidden = false;
+          modal.setAttribute("aria-hidden", "false");
+          backdrop.hidden = false;
+          timezoneLabel.value = timeZone;
+          setMinimumTime();
+          clearSuggestions();
+          setStatus("");
+          window.requestAnimationFrame(() => {
+            form.elements.fullName.focus();
+          });
+        }
+
+        function closeModal() {
+          modal.hidden = true;
+          modal.setAttribute("aria-hidden", "true");
+          backdrop.hidden = true;
+          clearSuggestions();
+          setStatus("");
+        }
+
+        function toIso(localValue) {
+          const date = new Date(localValue);
+          return Number.isNaN(date.getTime()) ? "" : date.toISOString();
+        }
+
+        function toLocalInputValue(isoValue) {
+          const date = new Date(isoValue);
+          if (Number.isNaN(date.getTime())) {
+            return "";
+          }
+
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          return year + "-" + month + "-" + day + "T" + hours + ":" + minutes;
+        }
+
+        function renderSuggestions(items) {
+          if (!Array.isArray(items) || !items.length) {
+            clearSuggestions();
+            return;
+          }
+
+          suggestions.hidden = false;
+          suggestions.innerHTML = items
+            .map((item) => {
+              return '<button class="booking-suggestion" type="button" data-start-iso="' + item.startIso + '">' + item.label + '</button>';
+            })
+            .join("");
+        }
+
+        async function submitBooking(event) {
+          event.preventDefault();
+          clearSuggestions();
+          setStatus("Sending your request...", "info");
+
+          const preferredDateTimeIso = toIso(form.elements.preferredDateTime.value);
+          if (!preferredDateTimeIso) {
+            setStatus("Please choose a valid preferred date and time.", "error");
+            return;
+          }
+
+          const apiBase = (BOOKING_CONTEXT.apiBaseUrl || window.location.origin || "").replace(/\\/$/, "");
+          if (!apiBase) {
+            setStatus("Booking API base URL is missing.", "error");
+            return;
+          }
+
+          const payload = {
+            intent: modal.dataset.intent || BOOKING_CONTEXT.defaultIntent || "demo",
+            fullName: form.elements.fullName.value.trim(),
+            workEmail: form.elements.workEmail.value.trim(),
+            companyName: form.elements.companyName.value.trim(),
+            phone: form.elements.phone.value.trim(),
+            preferredDateTimeIso,
+            timeZone,
+            notes: form.elements.notes.value.trim(),
+            requestCallback: form.elements.requestCallback.checked,
+            requestedServices: BOOKING_CONTEXT.requestedServices || [],
+            sourcePageTitle: BOOKING_CONTEXT.sourcePageTitle,
+            sourcePageUrl: window.location.href
+          };
+
+          try {
+            const response = await fetch(apiBase + "/api/public/booking/request", {
+              method: "POST",
+              headers: {
+                "content-type": "application/json"
+              },
+              body: JSON.stringify(payload)
+            });
+
+            const data = await response.json();
+            if (!response.ok) {
+              if (response.status === 409) {
+                setStatus(data.error || "That time is no longer available.", "warn");
+                renderSuggestions(data.suggestions || []);
+                return;
+              }
+
+              throw new Error(data.error || "Unable to submit your booking request.");
+            }
+
+            const voiceMessage = data.voiceCall?.status === "queued"
+              ? " A callback has been queued."
+              : "";
+            const calendarMessage = data.calendar?.event?.hangoutLink
+              ? " Check your email for the calendar invite and Meet link."
+              : " We have saved your requested time.";
+
+            setStatus("Thanks, your request is in." + calendarMessage + voiceMessage, "success");
+            form.reset();
+            form.elements.companyName.value = BOOKING_CONTEXT.defaultCompanyName || "";
+            timezoneLabel.value = timeZone;
+            clearSuggestions();
+          } catch (error) {
+            setStatus(error.message || "Unable to submit your booking request.", "error");
+          }
+        }
+
+        document.querySelectorAll("[data-booking-trigger]").forEach((trigger) => {
+          trigger.addEventListener("click", (event) => {
+            event.preventDefault();
+            openModal(trigger.dataset.bookingTrigger || "demo");
+          });
+        });
+
+        suggestions.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-start-iso]");
+          if (!button) {
+            return;
+          }
+
+          preferredTime.value = toLocalInputValue(button.dataset.startIso);
+          setStatus("Suggested time applied. You can submit again now.", "info");
+        });
+
+        form.addEventListener("submit", submitBooking);
+        closeButton.addEventListener("click", closeModal);
+        cancelButton.addEventListener("click", closeModal);
+        backdrop.addEventListener("click", closeModal);
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape" && !modal.hidden) {
+            closeModal();
+          }
+        });
+
+        timezoneLabel.value = timeZone;
+        setMinimumTime();
+      })();
+    </script>
+  `;
+}
+
 export function renderLandingPageHtml(page) {
   const {
     brand,
@@ -910,6 +1209,180 @@ export function renderLandingPageHtml(page) {
         flex-wrap: wrap;
       }
 
+      .booking-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 90;
+        background: rgba(4, 1, 28, 0.72);
+        backdrop-filter: blur(12px);
+      }
+
+      .booking-modal {
+        position: fixed;
+        inset: 0;
+        z-index: 100;
+        display: grid;
+        place-items: center;
+        padding: 20px;
+      }
+
+      .booking-panel {
+        width: min(720px, 100%);
+        max-height: min(90vh, 920px);
+        overflow: auto;
+        padding: 28px;
+        border: 1px solid rgba(234, 231, 242, 0.14);
+        border-radius: 30px;
+        background:
+          radial-gradient(circle at top right, rgba(67, 147, 200, 0.18), transparent 32%),
+          linear-gradient(160deg, rgba(14, 1, 97, 0.98), rgba(4, 1, 28, 0.96));
+        box-shadow: 0 30px 90px rgba(4, 1, 28, 0.48);
+      }
+
+      .booking-close,
+      .booking-secondary,
+      .booking-suggestion {
+        border: 1px solid rgba(234, 231, 242, 0.16);
+        border-radius: 999px;
+        background: rgba(234, 231, 242, 0.06);
+        color: var(--white);
+      }
+
+      .booking-close,
+      .booking-secondary {
+        padding: 12px 18px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .booking-close {
+        margin-left: auto;
+      }
+
+      .booking-header {
+        display: grid;
+        gap: 10px;
+        margin-top: 18px;
+      }
+
+      .booking-header h2 {
+        font-size: clamp(2rem, 5vw, 3rem);
+        line-height: 0.95;
+      }
+
+      .booking-form {
+        display: grid;
+        gap: 18px;
+        margin-top: 26px;
+      }
+
+      .booking-field-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .booking-field {
+        display: grid;
+        gap: 10px;
+      }
+
+      .booking-field span {
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+
+      .booking-field input,
+      .booking-field textarea {
+        width: 100%;
+        border: 1px solid rgba(234, 231, 242, 0.12);
+        border-radius: 18px;
+        background: rgba(234, 231, 242, 0.05);
+        color: var(--white);
+        padding: 16px 18px;
+        font: inherit;
+      }
+
+      .booking-field input::placeholder,
+      .booking-field textarea::placeholder {
+        color: rgba(234, 231, 242, 0.42);
+      }
+
+      .booking-field input[readonly] {
+        color: rgba(234, 231, 242, 0.72);
+      }
+
+      .booking-checkbox {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 16px 18px;
+        border: 1px solid rgba(234, 231, 242, 0.12);
+        border-radius: 18px;
+        background: rgba(234, 231, 242, 0.05);
+      }
+
+      .booking-checkbox input {
+        margin-top: 3px;
+      }
+
+      .booking-hint {
+        margin: 0;
+        color: rgba(234, 231, 242, 0.62);
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .booking-status {
+        margin: 0;
+        padding: 14px 16px;
+        border-radius: 16px;
+        font-size: 14px;
+        line-height: 1.6;
+      }
+
+      .booking-status[data-tone="info"] {
+        background: rgba(67, 147, 200, 0.16);
+      }
+
+      .booking-status[data-tone="success"] {
+        background: rgba(54, 196, 104, 0.18);
+      }
+
+      .booking-status[data-tone="warn"] {
+        background: rgba(255, 196, 87, 0.18);
+      }
+
+      .booking-status[data-tone="error"] {
+        background: rgba(255, 104, 117, 0.18);
+      }
+
+      .booking-suggestions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+
+      .booking-suggestion {
+        padding: 10px 14px;
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .booking-button-row {
+        display: flex;
+        gap: 14px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+
+      .booking-submit {
+        border: 0;
+        cursor: pointer;
+      }
+
       @keyframes float {
         0%, 100% {
           transform: translateY(0);
@@ -985,6 +1458,15 @@ export function renderLandingPageHtml(page) {
           margin-top: 18px;
           padding: 18px;
         }
+
+        .booking-panel {
+          padding: 22px 18px;
+          border-radius: 24px;
+        }
+
+        .booking-field-grid {
+          grid-template-columns: 1fr;
+        }
       }
     </style>
   </head>
@@ -1001,7 +1483,7 @@ export function renderLandingPageHtml(page) {
               <a href="#stories">Stories</a>
               <a href="#contact">Contact</a>
             </nav>
-            <a class="nav-button" href="#contact">Book a Demo</a>
+            <a class="nav-button" href="#contact" data-booking-trigger="demo">Book a Demo</a>
           </header>
 
           <div class="hero-grid">
@@ -1130,7 +1612,7 @@ export function renderLandingPageHtml(page) {
               <h2>${escapeHtml(ctaText)}</h2>
               <p>${escapeHtml(ctaSubtext)}</p>
             </div>
-            <a class="nav-button" href="#contact">Book Intro Call</a>
+            <a class="nav-button" href="#contact" data-booking-trigger="intro-call">Book Intro Call</a>
           </div>
 
           <footer class="footer">
@@ -1144,6 +1626,8 @@ export function renderLandingPageHtml(page) {
             </div>
           </footer>
         </section>
+
+        ${renderBookingWidget(page)}
       </div>
     </div>
   </body>
