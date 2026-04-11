@@ -2,13 +2,9 @@ import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 import { summarizeText } from "../../lib/utils.js";
 import { reserveCalendarSlot, isCalendarConfigured } from "./calendar.js";
-import { notifyBookingOwner } from "./notifications.js";
+import { getNotificationSystemStatus, notifyBookingOwner } from "./notifications.js";
 import { saveBookingRequest, updateBookingRequest } from "./store.js";
 import { isVoiceAgentConfigured, triggerOutboundBookingCall } from "./voiceAgent.js";
-
-function env(name, fallback = "") {
-  return String(process.env[name] || fallback).trim();
-}
 
 function trimValue(value, maxLength = 240) {
   return summarizeText(String(value || "").trim(), maxLength);
@@ -147,10 +143,13 @@ function buildNotificationPayload({ booking, calendar, voiceCall, requestMeta })
 }
 
 export function getBookingSystemStatus() {
+  const notificationStatus = getNotificationSystemStatus();
   return {
     calendarConfigured: isCalendarConfigured(),
     voiceAgentConfigured: isVoiceAgentConfigured(),
-    notificationWebhookConfigured: Boolean(env("BOOKING_NOTIFICATION_WEBHOOK_URL"))
+    ownerEmailConfigured: notificationStatus.ownerEmailConfigured,
+    emailNotificationsConfigured: notificationStatus.emailNotificationsConfigured,
+    notificationWebhookConfigured: notificationStatus.notificationWebhookConfigured
   };
 }
 

@@ -55,6 +55,7 @@ Booking flow:
 
 - The visitor picks a preferred date from an interactive calendar
 - The backend saves the preferred day and can create an owner-side reminder event in Google Calendar
+- The backend can send a direct owner-email notification for every request
 - If the visitor asks for a callback, the backend can place an outbound Twilio voice call
 - The call is handled by an OpenAI Realtime voice assistant that speaks naturally but identifies itself as Spot.AI's automated booking assistant
 - An optional webhook can notify you in Slack, Zapier, Make, or another system
@@ -83,6 +84,34 @@ Recommended optional variables:
 - `PUBLIC_BOOKING_API_URL`
 - `PUBLIC_BOOKING_ALLOWED_ORIGINS`
 - `BOOKING_NOTIFICATION_WEBHOOK_URL`
+- `SMTP_URL`
+- `SMTP_HOST`
+- `SMTP_PORT`
+- `SMTP_SECURE`
+- `SMTP_USER`
+- `SMTP_PASS`
+- `SMTP_FROM_EMAIL`
+- `SMTP_FROM_NAME`
+
+### Owner inbox notifications
+
+If you want every booking request to land in your inbox, configure:
+
+- `BOOKING_OWNER_EMAIL`
+- either `SMTP_URL` or the full SMTP set:
+  - `SMTP_HOST`
+  - `SMTP_PORT`
+  - `SMTP_SECURE`
+  - `SMTP_USER`
+  - `SMTP_PASS`
+
+Recommended Gmail setup:
+
+1. Use `BOOKING_OWNER_EMAIL` as your destination inbox.
+2. Use Gmail SMTP with `SMTP_HOST=smtp.gmail.com`, `SMTP_PORT=587`, `SMTP_SECURE=false`.
+3. Use your Gmail address as `SMTP_USER`.
+4. Use a Gmail App Password as `SMTP_PASS`.
+5. Optionally set `SMTP_FROM_EMAIL` to the same Gmail address.
 
 ### Google Calendar setup
 
