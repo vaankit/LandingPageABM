@@ -1,4 +1,3 @@
-import { randomUUID } from "crypto";
 import { DateTime, Interval } from "luxon";
 
 const GOOGLE_OAUTH_TOKEN_URL = "https://oauth2.googleapis.com/token";
@@ -55,7 +54,8 @@ function describeBooking(booking) {
     `Spot.AI booking request`,
     `Intent: ${booking.intentLabel}`,
     `Name: ${booking.fullName}`,
-    `Email: ${booking.workEmail}`
+    `Email: ${booking.workEmail}`,
+    `Preferred date: ${booking.preferredDateDisplay || booking.preferredDate || "Not provided"}`
   ];
 
   if (booking.phone) {
@@ -241,51 +241,30 @@ export async function reserveCalendarSlot(booking) {
     };
   }
 
-  const start = DateTime.fromISO(booking.preferredDateTimeIso, { setZone: true }).toUTC();
-  if (!start.isValid) {
-    throw new Error("Preferred date and time are invalid.");
-  }
-
-  const end = start.plus({ minutes: booking.durationMinutes || getDurationMinutes() });
-  const availability = await checkSlotAvailability({
-    startIso: start.toISO(),
-    endIso: end.toISO(),
-    timeZone: booking.timeZone || getOwnerTimeZone()
+  const preferredDate = DateTime.fromISO(booking.preferredDate, {
+    zone: booking.timeZone || getOwnerTimeZone()
   });
-
-  if (!availability.available) {
-    return {
-      status: "busy",
-      suggestions: await suggestAlternativeSlots({
-        requestedStartIso: start.toISO(),
-        timeZone: booking.timeZone || getOwnerTimeZone(),
-        durationMinutes: booking.durationMinutes || getDurationMinutes()
-      })
-    };
+  if (!preferredDate.isValid) {
+    throw new Error("Preferred date is invalid.");
   }
 
-  const attendees = [
-    booking.workEmail ? { email: booking.workEmail, displayName: booking.fullName } : null,
-    env("BOOKING_OWNER_EMAIL") && env("BOOKING_OWNER_EMAIL") !== booking.workEmail ? { email: env("BOOKING_OWNER_EMAIL") } : null
-  ].filter(Boolean);
+  const startDate = preferredDate.toISODate();
+  const endDate = preferredDate.plus({ days: 1 }).toISODate();
 
   const event = {
-    summary: `${booking.intentLabel}: ${booking.fullName}${booking.companyName ? ` • ${booking.companyName}` : ""}`,
-    description: describeBooking(booking),
+    summary: `Follow up: ${booking.intentLabel} • ${booking.fullName}${booking.companyName ? ` • ${booking.companyName}` : ""}`,
+    description: `${describeBooking(booking)}\n\nExact time to be confirmed based on availability.`,
     start: {
-      dateTime: start.toISO(),
-      timeZone: booking.timeZone || getOwnerTimeZone()
+      date: startDate
     },
     end: {
-      dateTime: end.toISO(),
-      timeZone: booking.timeZone || getOwnerTimeZone()
+      date: endDate
     },
-    attendees,
+    transparency: "transparent",
     reminders: {
       useDefault: false,
       overrides: [
-        { method: "email", minutes: 60 },
-        { method: "popup", minutes: 10 }
+        { method: "popup", minutes: 540 }
       ]
     },
     extendedProperties: {
@@ -298,18 +277,8 @@ export async function reserveCalendarSlot(booking) {
   };
 
   const query = new URLSearchParams({
-    sendUpdates: "all"
+    sendUpdates: "none"
   });
-
-  if (env("BOOKING_CREATE_MEET_LINK") === "true") {
-    event.conferenceData = {
-      createRequest: {
-        requestId: randomUUID(),
-        conferenceSolutionKey: { type: "hangoutsMeet" }
-      }
-    };
-    query.set("conferenceDataVersion", "1");
-  }
 
   const response = await calendarFetch(`/calendars/${encodeURIComponent(getCalendarId())}/events?${query.toString()}`, {
     method: "POST",
@@ -321,10 +290,9 @@ export async function reserveCalendarSlot(booking) {
     event: {
       id: response.id,
       htmlLink: response.htmlLink,
-      hangoutLink: response.hangoutLink || null,
       status: response.status,
-      startIso: response.start?.dateTime || start.toISO(),
-      endIso: response.end?.dateTime || end.toISO()
+      startDate: response.start?.date || startDate,
+      endDate: response.end?.date || endDate
     }
   };
 }

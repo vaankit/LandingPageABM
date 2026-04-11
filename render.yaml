@@ -22,8 +22,6 @@ services:
         value: "30"
       - key: BOOKING_OWNER_TIMEZONE
         value: "Pacific/Auckland"
-      - key: BOOKING_CREATE_MEET_LINK
-        value: "true"
       - key: BOOKING_RATE_LIMIT_WINDOW_MS
         value: "900000"
       - key: BOOKING_RATE_LIMIT_MAX

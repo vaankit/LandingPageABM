@@ -107,7 +107,7 @@ router.post("/booking/request", rateLimitBookingRequests, async (req, res) => {
 
     if (result.status === "needs-reschedule") {
       res.status(409).json({
-        error: "That time has just been taken. Here are the next available options.",
+        error: "That preferred day is no longer available. Please choose another date.",
         bookingId: result.bookingId,
         suggestions: result.suggestions || []
       });

@@ -53,9 +53,8 @@ The generated landing pages now include a live booking modal behind the `Book a 
 
 Booking flow:
 
-- The visitor picks a preferred date and time
-- The backend checks Google Calendar availability
-- If the slot is open, the app creates a calendar event and can optionally add a Google Meet link
+- The visitor picks a preferred date from an interactive calendar
+- The backend saves the preferred day and can create an owner-side reminder event in Google Calendar
 - If the visitor asks for a callback, the backend can place an outbound Twilio voice call
 - The call is handled by an OpenAI Realtime voice assistant that speaks naturally but identifies itself as Spot.AI's automated booking assistant
 - An optional webhook can notify you in Slack, Zapier, Make, or another system
@@ -84,7 +83,6 @@ Recommended optional variables:
 - `PUBLIC_BOOKING_API_URL`
 - `PUBLIC_BOOKING_ALLOWED_ORIGINS`
 - `BOOKING_NOTIFICATION_WEBHOOK_URL`
-- `BOOKING_CREATE_MEET_LINK`
 
 ### Google Calendar setup
 

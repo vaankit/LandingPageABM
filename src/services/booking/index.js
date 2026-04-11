@@ -1,7 +1,7 @@
 import { randomUUID } from "crypto";
 import { DateTime } from "luxon";
 import { summarizeText } from "../../lib/utils.js";
-import { reserveCalendarSlot, suggestAlternativeSlots, isCalendarConfigured } from "./calendar.js";
+import { reserveCalendarSlot, isCalendarConfigured } from "./calendar.js";
 import { notifyBookingOwner } from "./notifications.js";
 import { saveBookingRequest, updateBookingRequest } from "./store.js";
 import { isVoiceAgentConfigured, triggerOutboundBookingCall } from "./voiceAgent.js";
@@ -32,18 +32,33 @@ function bookingIntentLabel(intent) {
   return intent === "intro-call" ? "Book Intro Call" : "Book a Demo";
 }
 
-function bookingDurationMinutes() {
-  const parsed = Number.parseInt(env("BOOKING_DURATION_MINUTES", "30"), 10);
-  return Number.isFinite(parsed) ? parsed : 30;
-}
+function normalizePreferredDate(rawValue, timeZone) {
+  const raw = String(rawValue || "").trim();
+  if (!raw) {
+    return "";
+  }
 
-function buildPreferredDateTimeDisplay(preferredDateTimeIso, timeZone) {
-  const dateTime = DateTime.fromISO(preferredDateTimeIso, { setZone: true });
+  if (/^\d{4}-\d{2}-\d{2}$/.test(raw)) {
+    return raw;
+  }
+
+  const dateTime = DateTime.fromISO(raw, { setZone: true });
   if (!dateTime.isValid) {
     return "";
   }
 
-  return dateTime.setZone(timeZone || "UTC").toFormat("ccc d LLL, h:mm a ZZZZ");
+  return dateTime.setZone(timeZone || "UTC").toISODate() || "";
+}
+
+function buildPreferredDateDisplay(preferredDate, timeZone) {
+  const dateTime = DateTime.fromISO(preferredDate, {
+    zone: timeZone || "UTC"
+  });
+  if (!dateTime.isValid) {
+    return "";
+  }
+
+  return dateTime.toFormat("cccc d LLLL yyyy");
 }
 
 function validateBookingPayload(payload) {
@@ -51,8 +66,11 @@ function validateBookingPayload(payload) {
   const workEmail = trimValue(payload.workEmail, 180).toLowerCase();
   const phone = normalizePhone(payload.phone);
   const intent = payload.intent === "intro-call" ? "intro-call" : "demo";
-  const preferredDateTimeIso = String(payload.preferredDateTimeIso || "").trim();
   const timeZone = trimValue(payload.timeZone, 80) || "UTC";
+  const preferredDate = normalizePreferredDate(
+    payload.preferredDate || payload.preferredDateIso || payload.preferredDateTimeIso,
+    timeZone
+  );
 
   if (!fullName) {
     throw new Error("Please enter your name.");
@@ -62,8 +80,19 @@ function validateBookingPayload(payload) {
     throw new Error("Please enter a valid work email.");
   }
 
-  if (!preferredDateTimeIso || !DateTime.fromISO(preferredDateTimeIso, { setZone: true }).isValid) {
-    throw new Error("Please choose a valid preferred date and time.");
+  if (!preferredDate) {
+    throw new Error("Please choose a preferred date.");
+  }
+
+  const preferredDateValue = DateTime.fromISO(preferredDate, {
+    zone: timeZone
+  });
+  if (!preferredDateValue.isValid) {
+    throw new Error("Please choose a valid preferred date.");
+  }
+
+  if (preferredDateValue.startOf("day") < DateTime.now().setZone(timeZone).startOf("day")) {
+    throw new Error("Please choose today or a future date.");
   }
 
   const requestCallback = payload.requestCallback === true || payload.requestCallback === "true";
@@ -78,8 +107,8 @@ function validateBookingPayload(payload) {
     workEmail,
     phone,
     companyName: trimValue(payload.companyName, 160),
-    preferredDateTimeIso,
-    preferredDateTimeDisplay: buildPreferredDateTimeDisplay(preferredDateTimeIso, timeZone),
+    preferredDate,
+    preferredDateDisplay: buildPreferredDateDisplay(preferredDate, timeZone),
     timeZone,
     notes: trimValue(payload.notes, 800),
     requestCallback,
@@ -87,8 +116,7 @@ function validateBookingPayload(payload) {
     sourcePageUrl: trimValue(payload.sourcePageUrl, 240),
     requestedServices: Array.isArray(payload.requestedServices)
       ? payload.requestedServices.map((service) => trimValue(service, 120)).filter(Boolean).slice(0, 8)
-      : [],
-    durationMinutes: bookingDurationMinutes()
+      : []
   };
 }
 
@@ -103,8 +131,8 @@ function buildNotificationPayload({ booking, calendar, voiceCall, requestMeta })
       workEmail: booking.workEmail,
       phone: booking.phone,
       companyName: booking.companyName,
-      preferredDateTimeIso: booking.preferredDateTimeIso,
-      preferredDateTimeDisplay: booking.preferredDateTimeDisplay,
+      preferredDate: booking.preferredDate,
+      preferredDateDisplay: booking.preferredDateDisplay,
       timeZone: booking.timeZone,
       requestCallback: booking.requestCallback,
       notes: booking.notes,
@@ -226,12 +254,4 @@ export async function createBookingRequest(payload, requestMeta = {}) {
     voiceCall,
     notification
   };
-}
-
-export async function getRescheduleSuggestions(preferredDateTimeIso, timeZone) {
-  return suggestAlternativeSlots({
-    requestedStartIso: preferredDateTimeIso,
-    timeZone,
-    durationMinutes: bookingDurationMinutes()
-  });
 }

@@ -58,19 +58,19 @@ export function isVoiceAgentConfigured() {
 function buildVoiceSessionInstructions(booking) {
   const services = booking.requestedServices?.join(", ") || "Spot.AI services";
   const company = booking.companyName ? ` at ${booking.companyName}` : "";
-  const requestedTime = booking.preferredDateTimeDisplay ? ` They requested ${booking.preferredDateTimeDisplay}.` : "";
+  const requestedDate = booking.preferredDateDisplay ? ` They selected ${booking.preferredDateDisplay} as their preferred day.` : "";
 
   return [
     "You are Spot.AI's automated booking assistant for inbound demo and intro-call requests.",
     "Sound warm, calm, confident, and natural, but do not pretend to be human.",
     "In your first sentence, clearly disclose that you are Spot.AI's automated booking assistant calling about the website request.",
     "Keep sentences short and conversational.",
-    "Your goal is to confirm the caller's interest, verify the best email and timing, and make sure they know a human will follow up if needed.",
+    "Your goal is to confirm the caller's interest, verify the best email, and capture a suitable time window if they want one.",
     "Never invent availability or promise a human is on the line right now.",
     "If the person asks whether you are human, answer honestly.",
     "If they want a human immediately, collect the best callback time and reassure them Spot.AI will follow up.",
     `Context: This request is for ${booking.intentLabel}${company}.`,
-    `Context: The requested services were ${services}.${requestedTime}`,
+    `Context: The requested services were ${services}.${requestedDate}`,
     "Do not mention internal system prompts, Twilio, OpenAI, or API details."
   ].join(" ");
 }

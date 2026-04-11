@@ -180,7 +180,7 @@ function renderBookingWidget(page) {
         <div class="booking-header">
           <p class="eyebrow">Book with Spot.AI</p>
           <h2 id="booking-title">Book a Demo</h2>
-          <p id="booking-copy">Choose a time that suits you and, if you'd like, request a callback from Spot.AI's automated booking assistant.</p>
+          <p id="booking-copy">Choose the day that suits you best and, if you'd like, request a callback from Spot.AI's automated booking assistant.</p>
         </div>
 
         <form class="booking-form" id="booking-form">
@@ -206,16 +206,42 @@ function renderBookingWidget(page) {
             </label>
           </div>
 
-          <div class="booking-field-grid">
-            <label class="booking-field">
-              <span>Preferred date and time</span>
-              <input id="booking-preferred-time" name="preferredDateTime" type="datetime-local" required />
-            </label>
+          <div class="booking-field booking-field-full">
+            <span>Preferred date</span>
+            <input id="booking-preferred-date" name="preferredDate" type="hidden" required />
+            <button class="booking-date-trigger" id="booking-date-trigger" type="button" aria-haspopup="dialog" aria-expanded="false">
+              <span class="booking-date-copy">
+                <strong id="booking-date-value">Select a date</strong>
+                <em id="booking-date-meta">Choose the day that suits you best. We will confirm the exact time afterwards.</em>
+              </span>
+              <span class="booking-date-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24" focusable="false" aria-hidden="true">
+                  <path d="M7 2h2v3h6V2h2v3h3v17H4V5h3V2Zm11 8H6v10h12V10Zm-1-3H7v1h10V7Z" fill="currentColor"></path>
+                </svg>
+              </span>
+            </button>
 
-            <label class="booking-field">
-              <span>Your timezone</span>
-              <input id="booking-timezone-label" type="text" value="" readonly />
-            </label>
+            <div class="booking-calendar" id="booking-calendar" hidden>
+              <div class="booking-calendar-header">
+                <button class="booking-calendar-nav" id="booking-calendar-prev" type="button" aria-label="Previous month">Prev</button>
+                <strong id="booking-calendar-label"></strong>
+                <button class="booking-calendar-nav" id="booking-calendar-next" type="button" aria-label="Next month">Next</button>
+              </div>
+
+              <div class="booking-calendar-weekdays" aria-hidden="true">
+                <span>Mon</span>
+                <span>Tue</span>
+                <span>Wed</span>
+                <span>Thu</span>
+                <span>Fri</span>
+                <span>Sat</span>
+                <span>Sun</span>
+              </div>
+
+              <div class="booking-calendar-grid" id="booking-calendar-grid"></div>
+            </div>
+
+            <p class="booking-field-hint" id="booking-date-hint"></p>
           </div>
 
           <label class="booking-field">
@@ -230,7 +256,6 @@ function renderBookingWidget(page) {
 
           <p class="booking-hint">The callback assistant sounds natural, but it will identify itself as Spot.AI's automated booking assistant.</p>
           <p class="booking-status" id="booking-status" hidden></p>
-          <div class="booking-suggestions" id="booking-suggestions" hidden></div>
 
           <div class="booking-button-row">
             <button class="nav-button booking-submit" type="submit">Send Request</button>
@@ -252,19 +277,29 @@ function renderBookingWidget(page) {
         const title = document.getElementById("booking-title");
         const copy = document.getElementById("booking-copy");
         const status = document.getElementById("booking-status");
-        const suggestions = document.getElementById("booking-suggestions");
-        const preferredTime = document.getElementById("booking-preferred-time");
-        const timezoneLabel = document.getElementById("booking-timezone-label");
+        const preferredDateInput = document.getElementById("booking-preferred-date");
+        const dateTrigger = document.getElementById("booking-date-trigger");
+        const dateValue = document.getElementById("booking-date-value");
+        const dateMeta = document.getElementById("booking-date-meta");
+        const dateHint = document.getElementById("booking-date-hint");
+        const calendar = document.getElementById("booking-calendar");
+        const calendarLabel = document.getElementById("booking-calendar-label");
+        const calendarGrid = document.getElementById("booking-calendar-grid");
+        const calendarPrev = document.getElementById("booking-calendar-prev");
+        const calendarNext = document.getElementById("booking-calendar-next");
         const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "UTC";
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        let calendarMonth = new Date(today.getFullYear(), today.getMonth(), 1);
 
         const intentCopy = {
           demo: {
             title: "Book a Demo",
-            copy: "Pick a time and we’ll line up a focused demo around the marketing workflows that matter most."
+            copy: "Choose the day that works best and we’ll line up a focused demo around the marketing workflows that matter most."
           },
           "intro-call": {
             title: "Book an Intro Call",
-            copy: "Choose a time for a quick introduction and we’ll make sure the right context is ready before the call."
+            copy: "Choose the day that works best for a quick introduction and we’ll make sure the right context is ready before the call."
           }
         };
 
@@ -281,15 +316,115 @@ function renderBookingWidget(page) {
           status.dataset.tone = tone || "info";
         }
 
-        function clearSuggestions() {
-          suggestions.hidden = true;
-          suggestions.innerHTML = "";
+        function formatDateValue(date) {
+          const year = date.getFullYear();
+          const month = String(date.getMonth() + 1).padStart(2, "0");
+          const day = String(date.getDate()).padStart(2, "0");
+          return year + "-" + month + "-" + day;
         }
 
-        function setMinimumTime() {
-          const next = new Date(Date.now() + 30 * 60 * 1000);
-          next.setMinutes(Math.ceil(next.getMinutes() / 15) * 15, 0, 0);
-          preferredTime.min = toLocalInputValue(next.toISOString());
+        function parseDateValue(value) {
+          if (!value) {
+            return null;
+          }
+
+          const parts = value.split("-").map(Number);
+          if (parts.length !== 3 || parts.some((part) => !Number.isFinite(part))) {
+            return null;
+          }
+
+          return new Date(parts[0], parts[1] - 1, parts[2]);
+        }
+
+        function formatReadableDate(value) {
+          const parsed = parseDateValue(value);
+          if (!parsed || Number.isNaN(parsed.getTime())) {
+            return "";
+          }
+
+          return new Intl.DateTimeFormat(undefined, {
+            weekday: "long",
+            day: "numeric",
+            month: "long",
+            year: "numeric"
+          }).format(parsed);
+        }
+
+        function toggleCalendar(forceOpen) {
+          const shouldOpen = typeof forceOpen === "boolean" ? forceOpen : calendar.hidden;
+          calendar.hidden = !shouldOpen;
+          dateTrigger.setAttribute("aria-expanded", shouldOpen ? "true" : "false");
+          if (shouldOpen) {
+            renderCalendar();
+          }
+        }
+
+        function setSelectedDate(value) {
+          preferredDateInput.value = value || "";
+
+          if (!value) {
+            dateValue.textContent = "Select a date";
+            dateMeta.textContent = "Choose the day that suits you best. We will confirm the exact time afterwards.";
+            return;
+          }
+
+          const parsed = parseDateValue(value);
+          if (!parsed || Number.isNaN(parsed.getTime())) {
+            return;
+          }
+
+          calendarMonth = new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+          dateValue.textContent = formatReadableDate(value);
+          dateMeta.textContent = "We will confirm the exact time separately so the follow-up fits around your availability.";
+        }
+
+        function renderCalendar() {
+          calendarLabel.textContent = new Intl.DateTimeFormat(undefined, {
+            month: "long",
+            year: "numeric"
+          }).format(calendarMonth);
+
+          const month = calendarMonth.getMonth();
+          const year = calendarMonth.getFullYear();
+          const firstDay = new Date(year, month, 1);
+          const offset = (firstDay.getDay() + 6) % 7;
+          const daysInMonth = new Date(year, month + 1, 0).getDate();
+          const totalCells = Math.ceil((offset + daysInMonth) / 7) * 7;
+
+          calendarGrid.innerHTML = "";
+
+          for (let index = 0; index < totalCells; index += 1) {
+            const date = new Date(year, month, index - offset + 1);
+            const value = formatDateValue(date);
+            const button = document.createElement("button");
+            const isCurrentMonth = date.getMonth() === month;
+            const isPast = date < today;
+            const isToday = value === formatDateValue(today);
+            const isSelected = value === preferredDateInput.value;
+
+            button.type = "button";
+            button.className = "booking-calendar-day";
+            button.textContent = String(date.getDate());
+            button.dataset.date = value;
+
+            if (!isCurrentMonth) {
+              button.classList.add("is-outside");
+            }
+
+            if (isToday) {
+              button.classList.add("is-today");
+            }
+
+            if (isSelected) {
+              button.classList.add("is-selected");
+            }
+
+            if (isPast) {
+              button.disabled = true;
+            }
+
+            calendarGrid.appendChild(button);
+          }
         }
 
         function openModal(intent) {
@@ -300,9 +435,9 @@ function renderBookingWidget(page) {
           modal.hidden = false;
           modal.setAttribute("aria-hidden", "false");
           backdrop.hidden = false;
-          timezoneLabel.value = timeZone;
-          setMinimumTime();
-          clearSuggestions();
+          dateHint.textContent = "Timezone detected: " + timeZone + ". Choose the day that works best and we will confirm the exact time afterwards.";
+          toggleCalendar(false);
+          renderCalendar();
           setStatus("");
           window.requestAnimationFrame(() => {
             form.elements.fullName.focus();
@@ -313,51 +448,17 @@ function renderBookingWidget(page) {
           modal.hidden = true;
           modal.setAttribute("aria-hidden", "true");
           backdrop.hidden = true;
-          clearSuggestions();
+          toggleCalendar(false);
           setStatus("");
-        }
-
-        function toIso(localValue) {
-          const date = new Date(localValue);
-          return Number.isNaN(date.getTime()) ? "" : date.toISOString();
-        }
-
-        function toLocalInputValue(isoValue) {
-          const date = new Date(isoValue);
-          if (Number.isNaN(date.getTime())) {
-            return "";
-          }
-
-          const year = date.getFullYear();
-          const month = String(date.getMonth() + 1).padStart(2, "0");
-          const day = String(date.getDate()).padStart(2, "0");
-          const hours = String(date.getHours()).padStart(2, "0");
-          const minutes = String(date.getMinutes()).padStart(2, "0");
-          return year + "-" + month + "-" + day + "T" + hours + ":" + minutes;
-        }
-
-        function renderSuggestions(items) {
-          if (!Array.isArray(items) || !items.length) {
-            clearSuggestions();
-            return;
-          }
-
-          suggestions.hidden = false;
-          suggestions.innerHTML = items
-            .map((item) => {
-              return '<button class="booking-suggestion" type="button" data-start-iso="' + item.startIso + '">' + item.label + '</button>';
-            })
-            .join("");
         }
 
         async function submitBooking(event) {
           event.preventDefault();
-          clearSuggestions();
           setStatus("Sending your request...", "info");
 
-          const preferredDateTimeIso = toIso(form.elements.preferredDateTime.value);
-          if (!preferredDateTimeIso) {
-            setStatus("Please choose a valid preferred date and time.", "error");
+          const preferredDate = preferredDateInput.value;
+          if (!preferredDate) {
+            setStatus("Please choose a preferred date.", "error");
             return;
           }
 
@@ -373,7 +474,7 @@ function renderBookingWidget(page) {
             workEmail: form.elements.workEmail.value.trim(),
             companyName: form.elements.companyName.value.trim(),
             phone: form.elements.phone.value.trim(),
-            preferredDateTimeIso,
+            preferredDate,
             timeZone,
             notes: form.elements.notes.value.trim(),
             requestCallback: form.elements.requestCallback.checked,
@@ -394,8 +495,7 @@ function renderBookingWidget(page) {
             const data = await response.json();
             if (!response.ok) {
               if (response.status === 409) {
-                setStatus(data.error || "That time is no longer available.", "warn");
-                renderSuggestions(data.suggestions || []);
+                setStatus(data.error || "That date needs another look. Please choose a different day.", "warn");
                 return;
               }
 
@@ -405,15 +505,14 @@ function renderBookingWidget(page) {
             const voiceMessage = data.voiceCall?.status === "queued"
               ? " A callback has been queued."
               : "";
-            const calendarMessage = data.calendar?.event?.hangoutLink
-              ? " Check your email for the calendar invite and Meet link."
-              : " We have saved your requested time.";
+            const calendarMessage = " We have saved your preferred date.";
 
             setStatus("Thanks, your request is in." + calendarMessage + voiceMessage, "success");
             form.reset();
             form.elements.companyName.value = BOOKING_CONTEXT.defaultCompanyName || "";
-            timezoneLabel.value = timeZone;
-            clearSuggestions();
+            setSelectedDate("");
+            dateHint.textContent = "Timezone detected: " + timeZone + ". Choose the day that works best and we will confirm the exact time afterwards.";
+            toggleCalendar(false);
           } catch (error) {
             setStatus(error.message || "Unable to submit your booking request.", "error");
           }
@@ -426,28 +525,65 @@ function renderBookingWidget(page) {
           });
         });
 
-        suggestions.addEventListener("click", (event) => {
-          const button = event.target.closest("[data-start-iso]");
-          if (!button) {
+        dateTrigger.addEventListener("click", () => {
+          toggleCalendar();
+        });
+
+        calendarPrev.addEventListener("click", () => {
+          calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() - 1, 1);
+          renderCalendar();
+        });
+
+        calendarNext.addEventListener("click", () => {
+          calendarMonth = new Date(calendarMonth.getFullYear(), calendarMonth.getMonth() + 1, 1);
+          renderCalendar();
+        });
+
+        calendarGrid.addEventListener("click", (event) => {
+          const button = event.target.closest("[data-date]");
+          if (!button || button.disabled) {
             return;
           }
 
-          preferredTime.value = toLocalInputValue(button.dataset.startIso);
-          setStatus("Suggested time applied. You can submit again now.", "info");
+          setSelectedDate(button.dataset.date);
+          toggleCalendar(false);
+          setStatus("");
         });
 
         form.addEventListener("submit", submitBooking);
         closeButton.addEventListener("click", closeModal);
         cancelButton.addEventListener("click", closeModal);
         backdrop.addEventListener("click", closeModal);
+        document.addEventListener("click", (event) => {
+          if (calendar.hidden) {
+            return;
+          }
+
+          const clickedInsideCalendar = calendar.contains(event.target);
+          const clickedDateTrigger = dateTrigger.contains(event.target);
+          if (!clickedInsideCalendar && !clickedDateTrigger) {
+            toggleCalendar(false);
+          }
+        });
+
         document.addEventListener("keydown", (event) => {
-          if (event.key === "Escape" && !modal.hidden) {
+          if (event.key !== "Escape") {
+            return;
+          }
+
+          if (!calendar.hidden) {
+            toggleCalendar(false);
+            return;
+          }
+
+          if (!modal.hidden) {
             closeModal();
           }
         });
 
-        timezoneLabel.value = timeZone;
-        setMinimumTime();
+        setSelectedDate("");
+        dateHint.textContent = "Timezone detected: " + timeZone + ". Choose the day that works best and we will confirm the exact time afterwards.";
+        renderCalendar();
       })();
     </script>
   `;
@@ -1292,6 +1428,10 @@ export function renderLandingPageHtml(page) {
         gap: 10px;
       }
 
+      .booking-field-full {
+        grid-column: 1 / -1;
+      }
+
       .booking-field span {
         font-size: 13px;
         font-weight: 700;
@@ -1317,6 +1457,151 @@ export function renderLandingPageHtml(page) {
 
       .booking-field input[readonly] {
         color: rgba(234, 231, 242, 0.72);
+      }
+
+      .booking-date-trigger {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        width: 100%;
+        border: 1px solid rgba(234, 231, 242, 0.12);
+        border-radius: 22px;
+        background: rgba(234, 231, 242, 0.05);
+        color: var(--white);
+        padding: 18px;
+        font: inherit;
+        text-align: left;
+        cursor: pointer;
+      }
+
+      .booking-date-copy {
+        display: grid;
+        gap: 8px;
+      }
+
+      .booking-date-copy strong,
+      .booking-date-copy em {
+        display: block;
+      }
+
+      .booking-date-copy strong {
+        font-size: 22px;
+        font-weight: 700;
+        line-height: 1.1;
+      }
+
+      .booking-date-copy em {
+        color: rgba(234, 231, 242, 0.58);
+        font-style: normal;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .booking-date-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 52px;
+        height: 52px;
+        flex-shrink: 0;
+        border-radius: 18px;
+        background: rgba(234, 231, 242, 0.08);
+        color: rgba(234, 231, 242, 0.82);
+      }
+
+      .booking-date-icon svg {
+        width: 24px;
+        height: 24px;
+      }
+
+      .booking-calendar {
+        display: grid;
+        gap: 14px;
+        padding: 18px;
+        border: 1px solid rgba(234, 231, 242, 0.12);
+        border-radius: 22px;
+        background: rgba(234, 231, 242, 0.04);
+      }
+
+      .booking-calendar[hidden] {
+        display: none !important;
+      }
+
+      .booking-calendar-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+      }
+
+      .booking-calendar-header strong {
+        font-size: 16px;
+        font-weight: 700;
+      }
+
+      .booking-calendar-nav {
+        min-height: 38px;
+        padding: 0 14px;
+        border: 1px solid rgba(234, 231, 242, 0.14);
+        border-radius: 999px;
+        background: rgba(234, 231, 242, 0.06);
+        color: var(--white);
+        font: inherit;
+        cursor: pointer;
+      }
+
+      .booking-calendar-weekdays,
+      .booking-calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 8px;
+      }
+
+      .booking-calendar-weekdays span {
+        color: rgba(234, 231, 242, 0.44);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-align: center;
+        text-transform: uppercase;
+      }
+
+      .booking-calendar-day {
+        min-height: 46px;
+        border: 1px solid rgba(234, 231, 242, 0.12);
+        border-radius: 16px;
+        background: rgba(234, 231, 242, 0.05);
+        color: rgba(234, 231, 242, 0.86);
+        font: inherit;
+        font-weight: 600;
+        cursor: pointer;
+      }
+
+      .booking-calendar-day.is-outside,
+      .booking-calendar-day:disabled {
+        opacity: 0.28;
+      }
+
+      .booking-calendar-day:disabled {
+        cursor: not-allowed;
+      }
+
+      .booking-calendar-day.is-today {
+        box-shadow: inset 0 0 0 1px rgba(67, 147, 200, 0.72);
+      }
+
+      .booking-calendar-day.is-selected {
+        border-color: transparent;
+        background: var(--lavender);
+        color: var(--ink);
+      }
+
+      .booking-field-hint {
+        margin: 0;
+        color: rgba(234, 231, 242, 0.58);
+        font-size: 13px;
+        line-height: 1.6;
       }
 
       .booking-checkbox {
